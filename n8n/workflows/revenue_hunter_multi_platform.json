@@ -1,0 +1,708 @@
+{
+    "name": "EVAD DAO \u2014 Revenue Hunter Multi-Platform",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "hours",
+                            "hoursInterval": 6
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "\u23f0 A cada 6 horas",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                0,
+                300
+            ]
+        },
+        {
+            "parameters": {},
+            "id": "manual-trigger",
+            "name": "\u25b6\ufe0f Manual Trigger",
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "url": "https://www.workana.com/jobs?category=it-programming&language=pt",
+                "options": {
+                    "response": {
+                        "responseFormat": "text"
+                    }
+                },
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "User-Agent",
+                            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                        },
+                        {
+                            "name": "Accept-Language",
+                            "value": "pt-BR,pt;q=0.9,en-US;q=0.8"
+                        }
+                    ]
+                }
+            },
+            "id": "workana-fetch",
+            "name": "\ud83c\udf10 Fetch Workana",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                250,
+                0
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "url": "https://www.workana.com/jobs?category=it-programming&subcategory=artificial-intelligence&language=pt",
+                "options": {
+                    "response": {
+                        "responseFormat": "text"
+                    }
+                },
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "User-Agent",
+                            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                        },
+                        {
+                            "name": "Accept-Language",
+                            "value": "pt-BR,pt;q=0.9,en-US;q=0.8"
+                        }
+                    ]
+                }
+            },
+            "id": "workana-ai-fetch",
+            "name": "\ud83c\udf10 Fetch Workana IA",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                250,
+                200
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "url": "https://www.99freelas.com.br/projects?categoria=it-programacao",
+                "options": {
+                    "response": {
+                        "responseFormat": "text"
+                    }
+                },
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "User-Agent",
+                            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                        },
+                        {
+                            "name": "Accept-Language",
+                            "value": "pt-BR,pt;q=0.9,en-US;q=0.8"
+                        }
+                    ]
+                }
+            },
+            "id": "freelas-fetch",
+            "name": "\ud83c\udf10 Fetch 99Freelas",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                250,
+                400
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "url": "https://www.99freelas.com.br/projects?categoria=it-programacao&habilidades=inteligencia-artificial-ia,machine-learning,processamento-de-linguagem-natural",
+                "options": {
+                    "response": {
+                        "responseFormat": "text"
+                    }
+                },
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "User-Agent",
+                            "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                        },
+                        {
+                            "name": "Accept-Language",
+                            "value": "pt-BR,pt;q=0.9,en-US;q=0.8"
+                        }
+                    ]
+                }
+            },
+            "id": "freelas-ai-fetch",
+            "name": "\ud83c\udf10 Fetch 99Freelas IA",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                250,
+                600
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "extractHtmlContent",
+                "dataPropertyName": "data",
+                "extractionValues": {
+                    "values": [
+                        {
+                            "key": "titles",
+                            "cssSelector": ".project-item h2, .project-title a",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "links",
+                            "cssSelector": ".project-item h2 a, .project-title a",
+                            "returnArray": true,
+                            "returnValue": "attribute",
+                            "attribute": "href"
+                        },
+                        {
+                            "key": "budgets",
+                            "cssSelector": ".values",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "skills",
+                            "cssSelector": ".skills p, .skills a",
+                            "returnArray": true
+                        }
+                    ]
+                },
+                "options": {
+                    "ignoreMissingCssSelectors": true
+                }
+            },
+            "id": "workana-extract",
+            "name": "\ud83d\udd0d Extract Workana",
+            "type": "n8n-nodes-base.html",
+            "typeVersion": 1.2,
+            "position": [
+                450,
+                0
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "extractHtmlContent",
+                "dataPropertyName": "data",
+                "extractionValues": {
+                    "values": [
+                        {
+                            "key": "titles",
+                            "cssSelector": ".project-item h2, .project-title a",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "links",
+                            "cssSelector": ".project-item h2 a, .project-title a",
+                            "returnArray": true,
+                            "returnValue": "attribute",
+                            "attribute": "href"
+                        },
+                        {
+                            "key": "budgets",
+                            "cssSelector": ".values",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "skills",
+                            "cssSelector": ".skills p, .skills a",
+                            "returnArray": true
+                        }
+                    ]
+                },
+                "options": {
+                    "ignoreMissingCssSelectors": true
+                }
+            },
+            "id": "workana-ai-extract",
+            "name": "\ud83d\udd0d Extract Workana IA",
+            "type": "n8n-nodes-base.html",
+            "typeVersion": 1.2,
+            "position": [
+                450,
+                200
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "extractHtmlContent",
+                "dataPropertyName": "data",
+                "extractionValues": {
+                    "values": [
+                        {
+                            "key": "titles",
+                            "cssSelector": "h1.title a, .result-title a",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "links",
+                            "cssSelector": "h1.title a, .result-title a",
+                            "returnArray": true,
+                            "returnValue": "attribute",
+                            "attribute": "href"
+                        },
+                        {
+                            "key": "budgets",
+                            "cssSelector": ".item-text-price, .price",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "skills",
+                            "cssSelector": ".item-text-skills a, .skill-tag",
+                            "returnArray": true
+                        }
+                    ]
+                },
+                "options": {
+                    "ignoreMissingCssSelectors": true
+                }
+            },
+            "id": "freelas-extract",
+            "name": "\ud83d\udd0d Extract 99Freelas",
+            "type": "n8n-nodes-base.html",
+            "typeVersion": 1.2,
+            "position": [
+                450,
+                400
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "extractHtmlContent",
+                "dataPropertyName": "data",
+                "extractionValues": {
+                    "values": [
+                        {
+                            "key": "titles",
+                            "cssSelector": "h1.title a, .result-title a",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "links",
+                            "cssSelector": "h1.title a, .result-title a",
+                            "returnArray": true,
+                            "returnValue": "attribute",
+                            "attribute": "href"
+                        },
+                        {
+                            "key": "budgets",
+                            "cssSelector": ".item-text-price, .price",
+                            "returnArray": true
+                        },
+                        {
+                            "key": "skills",
+                            "cssSelector": ".item-text-skills a, .skill-tag",
+                            "returnArray": true
+                        }
+                    ]
+                },
+                "options": {
+                    "ignoreMissingCssSelectors": true
+                }
+            },
+            "id": "freelas-ai-extract",
+            "name": "\ud83d\udd0d Extract 99Freelas IA",
+            "type": "n8n-nodes-base.html",
+            "typeVersion": 1.2,
+            "position": [
+                450,
+                600
+            ],
+            "continueOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "mode": "append"
+            },
+            "id": "merge-workana",
+            "name": "\ud83d\udd00 Merge Workana",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3,
+            "position": [
+                650,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "append"
+            },
+            "id": "merge-freelas",
+            "name": "\ud83d\udd00 Merge 99Freelas",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3,
+            "position": [
+                650,
+                500
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "append"
+            },
+            "id": "merge-all",
+            "name": "\ud83d\udd00 Merge All",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3,
+            "position": [
+                850,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const items = $input.all();\nconst results = [];\nconst seen = new Set();\n\nfor (const item of items) {\n  if (!item || !item.json) continue;\n  const titles = Array.isArray(item.json.titles) ? item.json.titles : [item.json.titles].filter(Boolean);\n  const links = Array.isArray(item.json.links) ? item.json.links : [item.json.links].filter(Boolean);\n  const budgets = Array.isArray(item.json.budgets) ? item.json.budgets : [item.json.budgets].filter(Boolean);\n  const skills = Array.isArray(item.json.skills) ? item.json.skills : [item.json.skills].filter(Boolean);\n  \n  // Identify platform based on link presence\n  const isWorkana = links.some(l => l && typeof l === 'string' && l.includes('workana')) || (!links.length && item.json.titles && item.json.titles.length > 0);\n  const is99 = links.some(l => l && typeof l === 'string' && l.includes('99freelas'));\n  \n  let platform = 'workana';\n  let badge = 'WKN';\n  if (is99 || (!isWorkana && titles.length && links.some(l => l.startsWith('/projects')))) {\n    platform = '99freelas';\n    badge = '99F';\n  }\n  \n  const maxItems = Math.min(titles.length, links.length);\n  \n  for (let i = 0; i < maxItems; i++) {\n    if (!titles[i]) continue;\n    const title = String(titles[i]).trim();\n    if (title.length < 5) continue;\n    \n    const hash = title.toLowerCase().replace(/\\s+/g, '');\n    if (seen.has(hash)) continue;\n    seen.add(hash);\n    \n    const budgetText = budgets[i] ? String(budgets[i]).trim() : '';\n    const nums = (budgetText.match(/\\d+/g) || []).map(Number);\n    const rewardMin = nums.length >= 2 ? nums[0] : 0;\n    const rewardMax = nums.length >= 2 ? nums[1] : (nums[0] || 0);\n    \n    let url = links[i] ? String(links[i]) : '';\n    if (url.startsWith('/')) {\n      url = (platform === 'workana' ? 'https://www.workana.com' : 'https://www.99freelas.com.br') + url;\n    }\n    \n    let effortHours = 10;\n    if (rewardMax <= 100) effortHours = 4;\n    else if (rewardMax <= 250) effortHours = 8;\n    else if (rewardMax <= 500) effortHours = 15;\n    else if (rewardMax <= 1000) effortHours = 25;\n    else effortHours = 40;\n    \n    const ourSkills = ['python','ia','chatbot','whatsapp','automa\u00e7\u00e3o','automation','node','react','api','n8n','openai','gpt','llm','machine learning','nlp','bot'];\n    const titleLower = title.toLowerCase();\n    let skillMatch = ourSkills.filter(s => titleLower.includes(s)).length;\n    \n    let skillText = '';\n    if (skills[i] && typeof skills[i] === 'string') {\n      skillText = skills[i].replace(/[\\n\\r]+/g, ', ').trim();\n      skillMatch += ourSkills.filter(s => skillText.toLowerCase().includes(s)).length;\n    }\n    \n    const ratio = rewardMax / Math.max(effortHours, 1);\n    const score = Math.round(ratio * 0.6 + skillMatch * 25 * 0.4);\n    \n    let tier = 'cool';\n    if (score > 40 || skillMatch >= 2) tier = 'hot';\n    else if (score > 15 || skillMatch >= 1) tier = 'warm';\n    \n    results.push({\n      json: {\n        id: `${badge.toLowerCase()}_${Date.now()}_${i}`,\n        platform,\n        title,\n        url,\n        rewardMin,\n        rewardMax,\n        effortHours,\n        skills: skillText,\n        tier,\n        score,\n        status: 'active',\n        posted: new Date().toISOString(),\n        scraped_at: new Date().toISOString()\n      }\n    });\n  }\n}\n\nresults.sort((a, b) => b.json.score - a.json.score);\nreturn results;"
+            },
+            "id": "transform-code",
+            "name": "\u2699\ufe0f Transform & Rank",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1050,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "toFile",
+                "fileName": "opportunities.json",
+                "options": {}
+            },
+            "id": "to-file",
+            "name": "\ud83d\udcc4 To JSON File",
+            "type": "n8n-nodes-base.convertToFile",
+            "typeVersion": 1.1,
+            "position": [
+                1250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "write",
+                "fileName": "/Users/kreligar3vad/Desktop/Entidados/Entidados/dashboard/data/opportunities.json",
+                "options": {}
+            },
+            "id": "write-dash",
+            "name": "\ud83d\udcbe Save Dashboard",
+            "type": "n8n-nodes-base.readWriteFile",
+            "typeVersion": 1,
+            "position": [
+                1500,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "write",
+                "fileName": "/Users/kreligar3vad/Desktop/Entidados/Entidados/squads/nexus/data/raw_opportunities.json",
+                "options": {}
+            },
+            "id": "write-raw",
+            "name": "\ud83d\udcbe Save RAW",
+            "type": "n8n-nodes-base.readWriteFile",
+            "typeVersion": 1,
+            "position": [
+                1500,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.tier }}",
+                            "value2": "hot"
+                        }
+                    ]
+                }
+            },
+            "id": "filter-hot",
+            "name": "\ud83d\udd25 Filtrar HOT",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1250,
+                500
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "sum",
+                            "name": "text",
+                            "value": "={{ $json.title }} | Score: {{ $json.score }} | ${{\n$json.rewardMin}}-${{$json.rewardMax}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "format-alert",
+            "name": "\ud83d\udcdd Format Alert",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                1500,
+                600
+            ]
+        }
+    ],
+    "connections": {
+        "\u23f0 A cada 6 horas": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83c\udf10 Fetch Workana",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83c\udf10 Fetch Workana IA",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83c\udf10 Fetch 99Freelas",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83c\udf10 Fetch 99Freelas IA",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\u25b6\ufe0f Manual Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83c\udf10 Fetch Workana",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83c\udf10 Fetch Workana IA",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83c\udf10 Fetch 99Freelas",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83c\udf10 Fetch 99Freelas IA",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83c\udf10 Fetch Workana": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd0d Extract Workana",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83c\udf10 Fetch Workana IA": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd0d Extract Workana IA",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83c\udf10 Fetch 99Freelas": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd0d Extract 99Freelas",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83c\udf10 Fetch 99Freelas IA": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd0d Extract 99Freelas IA",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd0d Extract Workana": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd00 Merge Workana",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd0d Extract Workana IA": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd00 Merge Workana",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd0d Extract 99Freelas": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd00 Merge 99Freelas",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd0d Extract 99Freelas IA": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd00 Merge 99Freelas",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd00 Merge Workana": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd00 Merge All",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd00 Merge 99Freelas": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udd00 Merge All",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd00 Merge All": {
+            "main": [
+                [
+                    {
+                        "node": "\u2699\ufe0f Transform & Rank",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\u2699\ufe0f Transform & Rank": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udcc4 To JSON File",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83d\udd25 Filtrar HOT",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udcc4 To JSON File": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udcbe Save Dashboard",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "\ud83d\udcbe Save RAW",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "\ud83d\udd25 Filtrar HOT": {
+            "main": [
+                [
+                    {
+                        "node": "\ud83d\udcdd Format Alert",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "meta": {
+        "templateCredsSetupCompleted": true
+    }
+}

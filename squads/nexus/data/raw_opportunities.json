@@ -1,0 +1,188 @@
+[
+  {
+    "id": "wkn_1446910498",
+    "platform": "Workana",
+    "title": "Desenvolvedor Odoo Erp para Personalização e Criação de Módulos Cus...",
+    "url": "https://www.workana.com/job/desenvolvedor-odoo-erp-para-personalizacao-e-criacao-de-modulos-customizados?ref=projects_1",
+    "rewardRaw": "Mais de USD 3.000",
+    "rewardMin": 0,
+    "rewardMax": 3000,
+    "skills": [
+      "Odoo",
+      "ERP",
+      "Python",
+      "PostgresSQL",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Database",
+      "System Analysis",
+      "OpenERP"
+    ],
+    "full_description": "Estamos buscando um desenvolvedor de software ERP especializado na plataforma Odoo para um projeto de personalização e desenvolvimento de módulos. O projeto envolve a customização e integração de diversos módulos Odoo já existentes, incluindo crm, assinatura de documentos, cadastro de clientes, módulo financeiro, site, recursos humanos (rh) e gestão de frota. Além disso, será necessário o desenvolvimento de dois novos módulos totalmente customizados, que deverão ser criados do zero para atender a requisitos específicos do nosso negócio. Buscamos um profissional com experiência comprovada em Odoo, capaz de trabalhar tanto com a personalização de funcionalidades existentes quanto com o desenvolvimento de soluções inovadoras. O objetivo é otimizar nossas operações e processos internos através de uma implementação robusta e eficiente do Odoo.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:30.158Z"
+  },
+  {
+    "id": "wkn_676519198",
+    "platform": "Workana",
+    "title": "Desenvolvimento de Bot para Automação de Notificações de Imóveis do...",
+    "url": "https://www.workana.com/job/desenvolvimento-de-bot-para-automacao-de-notificacoes-de-imoveis-do-crm-em-grupo-de-whatsapp?ref=projects_1",
+    "rewardRaw": "USD 250 - 500",
+    "rewardMin": 250,
+    "rewardMax": 500,
+    "skills": [
+      "Python",
+      "JavaScript",
+      "API",
+      "Web Services",
+      "Database",
+      "CRM",
+      "Node.js"
+    ],
+    "full_description": "Estamos buscando um desenvolvedor para criar um bot que automatize o envio de informações sobre imóveis recém-adicionados ao nosso sistema de CRM para um grupo específico no WhatsApp. O objetivo é agilizar a comunicação e garantir que nossa equipe e também nossos clientes receba atualizações em tempo real sobre novas propriedades disponíveis. O projeto envolve a integração com nosso crm para extrair dados dos imóveis, a formatação dessas informações de maneira clara e concisa, e a utilização de uma api ou biblioteca para o envio das mensagens ao grupo do whatsapp. É Fundamental que a solução seja robusta, confiável e fácil de manter. Detalhes técnicos do CRM e da estrutura de dados serão fornecidos ao profissional selecionado.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:30.666Z"
+  },
+  {
+    "id": "wkn_1611264828",
+    "platform": "Workana",
+    "title": "Criação de Banco de Dados Centralizado e Desenvolvimento de Dashboards Projeto Max",
+    "url": "https://www.workana.com/job/criacao-de-banco-de-dados-centralizado-e-desenvolvimento-de-dashboards?ref=projects_1",
+    "rewardRaw": "USD 500 - 1.000",
+    "rewardMin": 500,
+    "rewardMax": 1000,
+    "skills": [
+      "Database",
+      "SQL",
+      "Modelagem de Dados",
+      "Python",
+      "Power BI",
+      "Tableau"
+    ],
+    "full_description": "O projeto consiste na criação de um banco de dados robusto e centralizado para armazenar todas as informações essenciais da empresa. Este banco de dados servirá como a fonte única de verdade para os dados corporativos. Após a implementação do banco de dados, será necessário desenvolver uma série de dashboards interativos e intuitivos. Estes dashboards devem permitir a visualização e análise de métricas chave de desempenho (KPIs) e outras informações relevantes para a tomada de decisões estratégicas. O trabalho inclui o design do esquema do banco de dados, a implementação, a migração de dados (se aplicável), e o desenvolvimento das ferramentas de visualização.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:31.212Z"
+  },
+  {
+    "id": "wkn_1610879346",
+    "platform": "Workana",
+    "title": "Correção e Otimização de Automação para Extração de Pedidos Tiny/Ol...",
+    "url": "https://www.workana.com/job/correcao-e-otimizacao-de-automacao-para-extracao-de-pedidos-tiny-olist-via-excel?ref=projects_1",
+    "rewardRaw": "USD 50 - 100",
+    "rewardMin": 50,
+    "rewardMax": 100,
+    "skills": [
+      "Python",
+      "Selenium",
+      "Web Services",
+      "Scripts & Utilities",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "full_description": "Estamos buscando um freelancer experiente para corrigir e otimizar um código de automação existente. O objetivo principal deste projeto é garantir que o script funcione de forma eficiente e confiável para extrair pedidos dos sites Tiny e Olist. O código atual é responsável por: \n1.  Acessar e realizar login automático nos sites Tiny e Olist.\n2.  Puxar informações de pedidos com base em dados fornecidos em bases de dados Excel (data e número do pedido).\n3.  Navegar por múltiplas páginas para coletar todos os pedidos relevantes. \nO freelancer será responsável por: \n*   Analisar o código existente para identificar e corrigir quaisquer bugs ou falhas que estejam impedindo o funcionamento correto da automação.\n*   Otimizar o desempenho do script para garantir uma extração de dados mais rápida e estável.\n*   Assegurar que a automação seja robusta e capaz de lidar com possíveis alterações na estrutura dos sites Tiny e Olist (se aplicável, com foco na estabilidade atual).\n*   Garantir que a extração de dados seja precisa e completa, conforme as informações fornecidas nas planilhas Excel. \nBuscamos um profissional com forte conhecimento em automação web e manipulação de dados, capaz de entregar uma solução funcional e otimizada.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:31.812Z"
+  },
+  {
+    "id": "wkn_209443401",
+    "platform": "Workana",
+    "title": "Criação de Vitrine Online Personalizada para Perfumes Árabes e Impo...",
+    "url": "https://www.workana.com/job/criacao-de-vitrine-online-personalizada-para-perfumes-arabes-e-importados?ref=projects_1",
+    "rewardRaw": "Menos de USD 50",
+    "rewardMin": 0,
+    "rewardMax": 50,
+    "skills": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "PHP",
+      "MySQL",
+      "WordPress",
+      "WooCommerce",
+      "Responsive Web Design",
+      "Magento"
+    ],
+    "full_description": "Estamos buscando um desenvolvedor para criar uma vitrine online personalizada e atraente para a venda de perfumes árabes e importados. O objetivo é desenvolver uma plataforma de e-commerce que destaque a exclusividade e a qualidade dos produtos, proporcionando uma experiência de compra sofisticada e intuitiva para os clientes. A plataforma deve incluir um catálogo de produtos detalhado, funcionalidades de busca e filtragem avançadas, um carrinho de compras eficiente e um processo de checkout seguro. É Essencial que o design seja responsivo, garantindo uma navegação perfeita em dispositivos móveis e desktops. A personalização é fundamental para refletir a identidade da marca e o luxo dos produtos oferecidos.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:32.373Z"
+  },
+  {
+    "id": "wkn_897799842",
+    "platform": "Workana",
+    "title": "Especialista em Integração Tintim e Kommo Crm via Webhook com Pluga",
+    "url": "https://www.workana.com/job/especialista-em-integracao-tintim-e-kommo-crm-via-webhook-com-pluga?ref=projects_1",
+    "rewardRaw": "USD 15 - 45 / hora",
+    "rewardMin": 15,
+    "rewardMax": 45,
+    "skills": [
+      "API",
+      "Web Services",
+      "CRM",
+      "JavaScript",
+      "PHP",
+      "Python"
+    ],
+    "full_description": "Estamos buscando um profissional experiente em automações e integrações para nos auxiliar em um projeto específico. A tarefa principal envolve a integração do sistema Tintim com o Kommo CRM, utilizando webhooks e a ferramenta de automação Pluga. Encontramos desafios técnicos significativos, principalmente devido à ausência de documentação ou tutoriais específicos do Tintim para este tipo de integração. Procuramos um freelancer que já tenha experiência comprovada em integrações complexas, preferencialmente envolvendo CRM, webhooks e plataformas de automação. O objetivo é implementar uma solução estruturada e funcional. A contratação será para suporte pontual por hora, visando resolver esta implementação de forma eficiente.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:32.925Z"
+  },
+  {
+    "id": "wkn_922139972",
+    "platform": "Workana",
+    "title": "Desenvolvimento de Middleware para Integração Robusta entre Platafo...",
+    "url": "https://www.workana.com/job/desenvolvimento-de-middleware-para-integracao-robusta-entre-plataformas-asaas-e-cavok?ref=projects_1",
+    "rewardRaw": "USD 100 - 250",
+    "rewardMin": 100,
+    "rewardMax": 250,
+    "skills": [
+      "API",
+      "PHP",
+      "JavaScript",
+      "MySQL",
+      "ERP"
+    ],
+    "full_description": "Estamos buscando um desenvolvedor experiente para criar um middleware robusto e eficiente que permita a comunicação e integração contínua entre nossa plataforma de pagamentos Asaas e a plataforma Cavok. O objetivo principal é automatizar a troca de dados e o fluxo de informações, garantindo que as transações e outros processos de negócio sejam sincronizados de forma segura e confiável entre os dois sistemas.As responsabilidades incluem:Analisar as APIs de ambas as plataformas (Asaas e Cavok) para identificar os pontos de integração.Desenvolver o middleware utilizando tecnologias de backend apropriadas.Implementar a lógica de negócios para a sincronização de dados e processamento de pagamentos.Garantir a segurança, escalabilidade e performance da solução.Realizar testes exaustivos para assegurar a estabilidade e correção da integração.Procuramos um profissional com forte conhecimento em desenvolvimento de APIs, bancos de dados e boas práticas de codificação. Experiência prévia com integração de gateways de pagamento será um diferencial.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:33.480Z"
+  },
+  {
+    "id": "wkn_437793176",
+    "platform": "Workana",
+    "title": "Profissional para Suporte Técnico e Evolução Contínua de Projeto Ex...",
+    "url": "https://www.workana.com/job/profissional-para-suporte-tecnico-e-evolucao-continua-de-projeto-existente?ref=projects_1",
+    "rewardRaw": "Menos de USD 15 / hora",
+    "rewardMin": 0,
+    "rewardMax": 15,
+    "skills": [
+      "JavaScript",
+      "PHP",
+      "MySQL",
+      "HTML",
+      "CSS",
+      "Technical Support",
+      "System Analysis",
+      "Software Testing"
+    ],
+    "full_description": "Busco um profissional qualificado para fornecer suporte técnico contínuo e realizar melhorias e evoluções em um projeto já desenvolvido e em operação. O trabalho será sob demanda, conforme novas necessidades e requisitos surgirem. O objetivo é garantir a estabilidade do sistema, implementar novas funcionalidades, otimizar o desempenho e resolver quaisquer problemas que possam aparecer, assegurando a evolução constante da plataforma. Espera-se uma colaboração de longo prazo para manter o projeto atualizado e funcional.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:34.197Z"
+  },
+  {
+    "id": "wkn_129483717",
+    "platform": "Workana",
+    "title": "Especialista em Automação com N8n/Antigravity para a Agência Sparo",
+    "url": "https://www.workana.com/job/especialista-em-automacao-com-n8n-antigravity-para-a-agencia-sparo?ref=projects_1",
+    "rewardRaw": "USD 250 - 500",
+    "rewardMin": 250,
+    "rewardMax": 500,
+    "skills": [
+      "API",
+      "Web Services"
+    ],
+    "full_description": "A Agência Sparo Automações, especializada em automação e sistemas para empresas, está buscando um profissional qualificado para integrar nossa equipe e auxiliar na crescente demanda de projetos. Nosso canal no YouTube gera muitos pedidos de automação, e precisamos de alguém dedicado para atender a todos os nossos clientes com excelência.  \nO profissional selecionado será responsável por: Participar ativamente de reuniões com clientes para compreender suas necessidades específicas e propor soluções de automação eficazes. Desenvolver e implementar soluções de automação robustas, utilizando ferramentas como n8n, Antigravity e outras tecnologias relevantes do mercado. Realizar a integração de sistemas para otimizar processos e garantir a fluidez das operações dos nossos clientes.  \nBuscamos alguém com perfil proativo, excelentes habilidades de comunicação e experiência comprovada em automação de processos e integração de sistemas. O objetivo principal é expandir significativamente nossa capacidade de entrega, manter a alta qualidade dos nossos serviços e garantir a total satisfação dos clientes da Agência Sparo. Este é um projeto de longo prazo para um profissional que deseja crescer conosco.",
+    "status": "raw",
+    "scraped_at": "2026-02-24T17:01:35.105Z"
+  }
+]

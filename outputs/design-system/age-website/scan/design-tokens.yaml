@@ -1,0 +1,66 @@
+colors:
+  bg:
+    primary:
+      light: "#ffffff"
+      dark: "#000000"
+    secondary:
+      light: "#f8f8f8"
+      dark: "#0a0a0a"
+  text:
+    primary:
+      light: "#000000"
+      dark: "#ffffff"
+    secondary:
+      light: "#1c1c1e"
+      dark: "#f2f2f7"
+  accents:
+    silver: "#8e8e93"
+  borders:
+    subtle:
+      light: "#e5e5ea"
+      dark: "#2c2c2e"
+  glassmorphism:
+    bg:
+      light: "rgba(255, 255, 255, 0.7)"
+      dark: "rgba(0, 0, 0, 0.7)"
+    border:
+      light: "rgba(0, 0, 0, 0.05)"
+      dark: "rgba(255, 255, 255, 0.1)"
+
+typography:
+  fontFamily:
+    sans: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+  weights:
+    thin: 100
+    light: 300
+    regular: 400
+    medium: 500
+    bold: 700
+    black: 900
+  sizes:
+    h1: "clamp(3rem, 6vw, 5rem)"
+    h2: "2.5rem"
+    h3: "2rem"
+    body: "1.1rem"
+    small: "0.95rem"
+    tiny: "0.85rem"
+
+spacing:
+  scale: [4px, 8px, 12px, 16px, 24px, 32px, 64px, 96px, 128px]
+  common_patterns:
+    - Button padding: 12px 24px
+    - Pill padding: 6px 16px
+    - Section padding: 6rem 2rem (96px 32px)
+    - Card padding: 2.5rem (40px)
+
+borderRadius:
+  sm: "4px"
+  md: "12px"
+  lg: "24px"
+  pill: "999px"
+
+shadows:
+  glass: "0 4px 30px rgba(0, 0, 0, 0.05)"
+  hover_soft: "0 10px 20px rgba(0, 0, 0, 0.1)"
+  image_wrapper: "0 20px 40px rgba(0, 0, 0, 0.08)"
+  image_wrapper_hover: "0 30px 60px rgba(0, 0, 0, 0.12)"

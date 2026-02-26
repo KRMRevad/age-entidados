@@ -1,0 +1,20 @@
+# AI Architecture Memory: The Brain vs Muscle Split
+
+Você está operando sob a arquitetura **EVAD DAO**. Siga DIRETAMENTE e RIGOROSAMENTE as seguintes diretrizes sobre o uso de IAs neste projeto:
+
+## 1. Cloud/Frontier LLMs (Antigravity, Claude Code, Sonnet, etc.) = O CÉREBRO
+- **Perfil:** Espaço para reflexão profunda, planejamento arquitetural, refatoração estrutural de código e design de sistemas.
+- **Uso:** Construção da base intelectual. Nós usamos IAs de fronteira para desenhar como os sistemas funcionam, debugar erros complexos de código e criar os próprios Agentes.
+- **Papel:** Arquiteto, Analista Sênior, CTO.
+
+## 2. Local/Specialized LLMs (Ollama no Mac / Alienware, OpenClaw) = O MÚSCULO
+- **Perfil:** ULTRA-verticalizadas, cegas, executores sem espaço para reflexão existencial ou arquitetural. 
+- **Uso:** Tarefas repetitivas inseridas em canos de dados (pipelines), como ler JSONs de scraping (n8n) e cuspir drafts de propostas seguindo um template (`Hook -> Authority -> CTA`).
+- **Papel:** Operário de chão de fábrica, redator júnior encabrestado, classificador de dados binário.
+- **Regra de Ouro:** NUNCA peça para uma LLM local reestruturar o código ou "pensar" na arquitetura. Forneça o prompt estrito com formato de saída exato (ex: JSON Schema ou Markdown rígido) e limite o *temperature*.
+
+---
+
+### Consequência prática no código:
+- Todo script de automação (`squads/nexus/agents/proposal_drafter.py`, n8n nodes, OpenClaw tasks) DEVE usar as conexões locais (localhost:11434) e ser desenhado como "Músculo".
+- Seu trabalho (como Cursor/Claude) é escrever os scripts que coordenam esses "Músculos" com maestria.

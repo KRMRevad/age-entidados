@@ -1,0 +1,36 @@
+/* Badge Component Styles */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* Variants */
+.badge-subtle {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.badge-outline {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+}
+
+/* Sizes */
+.badge-md {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    gap: 8px;
+    /* For icons */
+}
+
+.badge-sm {
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    gap: 4px;
+}
