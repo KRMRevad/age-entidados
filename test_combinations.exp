@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+set timeout 5
+set users {"evad.oficial" "kreligar3vad" "alien" "arthur" "evad"}
+set passes {"321123frasenha" "321123" "frasenha"}
+
+foreach user $users {
+    foreach pass $passes {
+        puts "\nTrying $user with password $pass"
+        spawn ssh -o StrictHostKeyChecking=accept-new $user@100.66.114.87 "echo SUCCESS_LOGIN_DETECTED"
+        expect {
+            "password:" {
+                send "$pass\r"
+                exp_continue
+            }
+            "SUCCESS_LOGIN_DETECTED" {
+                puts "\n*** FOUND IT: User $user, Password $pass ***"
+                exit 0
+            }
+            eof {
+                # Connection closed or failed
+            }
+        }
+    }
+}
+exit 1

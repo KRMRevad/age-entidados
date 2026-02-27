@@ -3,12 +3,11 @@ import json
 import logging
 from pathlib import Path
 
-try:
-    from google import genai
-    from google.genai import types
-except ImportError:
-    print("❌ Erro: Pacote 'google-genai' não encontrado. Execute: pip install google-genai")
-    exit(1)
+import os
+import json
+import logging
+import urllib.request
+from pathlib import Path
 
 # Configuração
 WORK_DIR = Path(__file__).parent.parent.parent
@@ -35,74 +34,138 @@ def read_codex() -> str:
     with open(CODEX_FILE, 'r', encoding='utf-8') as f:
         return f.read()
 
-def init_llm():
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        logging.error("GEMINI_API_KEY não definida no ambiente.")
-        return None
-    return genai.Client(api_key=api_key)
+def call_local_llm(prompt: str) -> dict:
+    """Chama LLM local no Alienware (LM Studio ou Ollama) - Muscle Zero-Cost."""
 
-def evaluate_project(client, project: dict, codex: str) -> dict:
+    # Configuração — IP DO ALIENWARE NA REDE TAILSCALE
+    ALIENWARE_IP = os.environ.get("ALIENWARE_IP", "100.66.114.87")
+    LLM_PORT = os.environ.get("LLM_PORT", "1234")
+    url = f"http://{ALIENWARE_IP}:{LLM_PORT}/v1/chat/completions"
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "gpt-oss:20b",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant that outputs only raw, valid JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 1500
+    }
+
+    try:
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+        with urllib.request.urlopen(req, timeout=300) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            if "choices" in result and len(result["choices"]) > 0:
+                content = result["choices"][0]["message"]["content"]
+                content = content.replace("```json", "").replace("```", "").strip()
+                return json.loads(content)
+            else:
+                logging.warning(f"Resposta inesperada do LLM local: {result}")
+                return None
+    except Exception as e:
+        logging.warning(f"Falha ao conectar ao LLM local em {url}: {e}")
+        return None
+
+def call_openrouter_free_llm(prompt: str) -> dict:
+    """Tenta chamar OpenRouter usando os modelos Free para salvar Caixa (Survival Mode)."""
+
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        logging.warning("OPENROUTER_API_KEY não definida. Abortando tentativa de usar modelo Free.")
+        return None
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+        "HTTP-Referer": "https://synkra.ai",
+        "X-Title": "Entidados AGE"
+    }
+
+    data = {
+        "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant that outputs only raw, valid JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 1500
+    }
+
+    try:
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+        with urllib.request.urlopen(req, timeout=30) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            if "choices" in result and len(result["choices"]) > 0:
+                content = result["choices"][0]["message"]["content"]
+                content = content.replace("```json", "").replace("```", "").strip()
+                return json.loads(content)
+            else:
+                logging.warning(f"Resposta inesperada do OpenRouter: {result}")
+                return None
+    except Exception as e:
+        logging.warning(f"Falha na API OpenRouter: {e}")
+        return None
+
+def evaluate_project(project: dict, codex: str) -> dict:
     prompt = f"""
     Atue como o Diretor de Operações (NEXUS Squad) da EVAD DAO.
     Seu objetivo é avaliar um projeto Freelance e decidir se devemos enviar uma proposta, baseado no nosso CÓDEX.
     
-    CÓDEX ATUAL (Foco: SURVIVAL MODE - Precisamos de Receita Rápida, P0 ou P1):
+    CÓDEX ATUAL (Foco: SURVIVAL MODE - Precisamos de Receita Rápida, P0):
     {codex[:1000]}...
     
     DADOS DO PROJETO:
     - Título: {project.get('title')}
-    - Recompensa (Raw): {project.get('rewardRaw')}
+    - Recompensa: {project.get('rewardRaw')}
     - Habilidades: {', '.join(project.get('skills', []))}
     - Descrição: {project.get('full_description')}
     
     TAREFA:
-    1. Calcule uma 'score' térmica de 0 a 100 (100 = Match perfeito, dinheiro rápido, alta viabilidade técnica).
-    2. Classifique o 'tier': "hot" (>80), "warm" (50-80), "cool" (<50).
-    3. Estime o esforço em horas ('effort_hours') necessário para nós entregarmos o projeto.
-    4. Estime o custo de API em USD ('estimated_api_cost_usd') que teremos para rodar as LLMs/Agentes para entregar isso. Se for um chatbot simples, o custo é baixo. Se exigir muitos tokens, avalie.
-    5. Liste quais LLMs ('recommended_llms') da nossa stack atual (ex: Gemini 2.5 Flash, Claude 3.5 Sonnet, OpenAI o1, DeepSeek R1) seriam necessárias.
-    6. Se tier for "hot" ou "warm", redija um rascunho de 'proposal' persuasiva em Português.
-    7. Gere um raciocínio curto ('reasoning') justificando a nota e as escolhas técnicas.
+    1. Calcule 'score' térmica (0-100).
+    2. 'tier': "hot" (>80), "warm" (50-80), "cool" (<50).
+    3. 'effort_hours': esforço em horas.
+    4. 'proposal_draft': se tier for hot ou warm, rascunho de proposta persuasiva em Pt-BR.
     
-    Responda EXATAMENTE neste formato JSON válido:
+    Responda APENAS com este JSON válido e NADA MAIS:
     {{
         "score": 85,
         "tier": "hot",
         "effort_hours": 12,
-        "estimated_api_cost_usd": 1.50,
-        "recommended_llms": ["Gemini 2.5 Flash", "DeepSeek R1"],
-        "reasoning": "Texto justificando...",
-        "proposal_draft": "Olá, vi sua necessidade de... [texto da proposta]..."
+        "proposal_draft": "Olá, vi sua necessidade de..."
     }}
     """
     
-    try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-            ),
-        )
-        return json.loads(response.text)
-    except Exception as e:
-        logging.error(f"Erro ao avaliar projeto {project.get('id')}: {e}")
-        return {
-            "score": 0,
-            "tier": "cool",
-            "effort_hours": 0,
-            "estimated_api_cost_usd": 0.0,
-            "recommended_llms": [],
-            "reasoning": f"Erro na avaliação via LLM: {str(e)}",
-            "proposal_draft": ""
-        }
+    # 1. Tenta LLM Local no Alienware (Muscle Zero-Cost)
+    logging.info(f"🧠 Tentando LLM local (Alienware)...")
+    eval_result = call_local_llm(prompt)
+    if eval_result:
+        logging.info(f"✅ Sucesso via LLM local!")
+        return eval_result
+
+    # 2. Se falhar, tenta OpenRouter Free LLM como fallback
+    logging.info(f"⚠️ LLM local indisponível. Tentando OpenRouter Free...")
+    eval_result = call_openrouter_free_llm(prompt)
+    if eval_result:
+        logging.info(f"✅ Sucesso via OpenRouter!")
+        return eval_result
+
+    # 3. Se tudo falhar, retorna score 0
+    logging.error(f"Erro ao avaliar projeto. LLM local e OpenRouter indisponíveis.")
+    return {
+        "score": 0,
+        "tier": "cool",
+        "effort_hours": 0,
+        "proposal_draft": ""
+    }
 
 def run_drafter():
     logging.info("🚀 Iniciando Drafter do Revenue Hunter...")
-    client = init_llm()
-    if not client:
-        logging.warning("Executando em Modo Mock (Sem GEMINI_API_KEY). Apenas dados simulados serão gerados.")
     
     codex_content = read_codex()
     projects = load_json(RAW_FILE)
@@ -120,29 +183,12 @@ def run_drafter():
     for proj in new_projects:
         logging.info(f"🧠 Avaliando projeto: {proj['title'][:50]}...")
         
-        if client:
-            eval_result = evaluate_project(client, proj, codex_content)
-        else:
-            # Mock Data
-            score = 75 if len(proj['full_description']) > 150 else 40
-            tier = "hot" if score > 80 else ("warm" if score > 50 else "cool")
-            eval_result = {
-                "score": score,
-                "tier": tier,
-                "effort_hours": 10 if tier == 'hot' else 25,
-                "estimated_api_cost_usd": 0.50 if tier == 'hot' else 2.50,
-                "recommended_llms": ["Mock LLM 1.0"],
-                "reasoning": "Mock evaluation based on description length.",
-                "proposal_draft": "Simulação de proposta... Olá, posso fazer isso." if tier in ['hot', 'warm'] else ""
-            }
+        eval_result = evaluate_project(proj, codex_content)
         
         # Merge de Resultados
         proj['score'] = eval_result.get('score', 0)
         proj['tier'] = eval_result.get('tier', 'cool')
         proj['effort_hours'] = eval_result.get('effort_hours', 10)
-        proj['estimated_api_cost_usd'] = eval_result.get('estimated_api_cost_usd', 0.0)
-        proj['recommended_llms'] = eval_result.get('recommended_llms', [])
-        proj['reasoning'] = eval_result.get('reasoning', '')
         proj['proposal_draft'] = eval_result.get('proposal_draft', '')
         proj['status'] = 'evaluated'
         

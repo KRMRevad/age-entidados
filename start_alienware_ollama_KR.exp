@@ -1,0 +1,10 @@
+#!/usr/bin/expect -f
+set timeout 20
+spawn ssh -o StrictHostKeyChecking=accept-new kr@100.66.114.87 "OLLAMA_HOST=0.0.0.0 nohup ollama serve > /tmp/ollama.log 2>&1 & sleep 2; ps aux | grep ollama"
+expect {
+    "password:" {
+        send "321123frasenha\r"
+        exp_continue
+    }
+    eof
+}
