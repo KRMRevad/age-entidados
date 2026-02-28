@@ -242,6 +242,41 @@ function render() {
 // CRM Kanban
 // ========================
 
+// ========================
+// Pipeline Revenue Simulator (FEATURE 5)
+// ========================
+
+function updatePipelineSimulator() {
+    const statusMap = {
+        'lead': 'pipelineLead',
+        'enviado': 'pipelineEnviado',
+        'negociacao': 'pipelineNegociacao',
+        'execucao': 'pipelineExecucao',
+        'entregue': 'pipelineEntregue',
+        'pago': 'pipelinePago'
+    };
+
+    let totalPipeline = 0;
+
+    Object.entries(statusMap).forEach(([status, elementId]) => {
+        const opps = (state.opportunities || []).filter(o => o.status === status);
+        const stageTotal = opps.reduce((sum, opp) => sum + (opp.rewardMax || 0), 0);
+        totalPipeline += stageTotal;
+
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.textContent = `R$ ${stageTotal.toLocaleString('pt-BR')}`;
+            el.style.animation = 'none';
+            setTimeout(() => { el.style.animation = 'pulseValue 0.6s ease'; }, 10);
+        }
+    });
+
+    const totalEl = document.getElementById('pipelineTotal');
+    if (totalEl) {
+        totalEl.textContent = `R$ ${totalPipeline.toLocaleString('pt-BR')}`;
+    }
+}
+
 function renderKanban() {
     const columns = document.querySelectorAll('.kanban-column');
     if (!columns.length) return;
@@ -284,6 +319,9 @@ function renderKanban() {
     if (kanbanCount) {
         kanbanCount.textContent = `${totalLeads} deal${totalLeads !== 1 ? 's' : ''} ativo${totalLeads !== 1 ? 's' : ''}`;
     }
+
+    // Update pipeline simulator (FEATURE 5)
+    updatePipelineSimulator();
 
     // Setup Drag Events for columns just once
     if (!window.__kanbanEventsSetup) {
@@ -365,73 +403,162 @@ function drop(e) {
 }
 
 
-// Fetch live data from the AIOS pipeline
-async function fetchRadarData() {
+// ========================
+// Unified Polling System (FEATURE 2)
+// ========================
+
+let pollInterval = null;
+let lastCheckedOpportunitiesCount = 0;
+
+async function pollAllSources() {
     try {
-        const response = await fetch('../squads/nexus/data/radar_opportunities.json');
-        if (!response.ok) throw new Error('Falha ao carregar radar data');
-        const data = await response.json();
+        // Fetch from both sources
+        const radarResponse = await fetch('/api/radar');
+        const webhookResponse = await fetch('/api/webhook/n8n');
 
-        // Map backend format to frontend format
-        const mappedOpps = data.map(o => ({
-            id: o.id,
-            platform: o.platform.toLowerCase(),
-            title: o.title,
-            url: o.url,
-            rewardMin: o.rewardMin,
-            rewardMax: o.rewardMax,
-            effortHours: o.effortHours || 10, // Default if AI doesn't estimate
-            posted: o.scraped_at ? new Date(o.scraped_at).toLocaleTimeString() : 'Agora',
-            skills: o.skills ? o.skills.join(', ') : '',
-            aiScore: o.score, // Storing AI score
-            aiTier: o.tier,
-            aiProposal: o.proposal_draft,
-            aiCost: o.estimated_api_cost_usd,
-            aiLLMs: o.recommended_llms
-        }));
+        let allOpportunities = [];
+        let newOpportunitiesDetected = false;
 
-        // Merge without overwriting user-dismissed ones
+        // Merge radar opportunities
+        if (radarResponse.ok) {
+            const radarData = await radarResponse.json();
+            const mappedRadar = radarData.projects.map(o => ({
+                id: o.id,
+                platform: o.platform.toLowerCase(),
+                title: o.title,
+                url: o.url,
+                rewardMin: o.rewardMin || 0,
+                rewardMax: o.rewardMax || 0,
+                effortHours: o.effort_hours || 10,
+                posted: o.scraped_at ? new Date(o.scraped_at).toLocaleTimeString() : 'Agora',
+                skills: o.skills ? o.skills.join(', ') : '',
+                aiScore: o.score,
+                aiTier: o.tier,
+                aiProposal: o.proposal_draft,
+                aiCost: o.estimated_api_cost_usd,
+                aiLLMs: o.recommended_llms,
+                source: 'radar'
+            }));
+            allOpportunities = allOpportunities.concat(mappedRadar);
+        }
+
+        // Merge webhook opportunities
+        if (webhookResponse.ok) {
+            const webhookData = await webhookResponse.json();
+            const mappedWebhook = webhookData.opportunities.map(o => ({
+                id: o.id,
+                platform: o.platform.toLowerCase(),
+                title: o.title,
+                url: o.url,
+                rewardMin: 0,
+                rewardMax: parseFloat(o.reward) || 0,
+                effortHours: o.effort_hours || 10,
+                posted: new Date(o.timestamp).toLocaleTimeString(),
+                skills: '',
+                aiScore: o.score || 50,
+                aiTier: o.tier || 'cool',
+                aiProposal: '',
+                aiCost: 0,
+                aiLLMs: [],
+                source: 'webhook'
+            }));
+            allOpportunities = allOpportunities.concat(mappedWebhook);
+        }
+
+        // Detect new opportunities
+        const currentIds = (state.opportunities || []).map(x => x.id);
+        const newOpps = allOpportunities.filter(opp => !currentIds.includes(opp.id));
+
+        if (newOpps.length > 0) {
+            newOpportunities = true;
+            newOpps.forEach(opp => {
+                // Check if it's HOT
+                if (opp.aiScore >= 80 || opp.aiTier === 'hot') {
+                    showToast(`🔥 Nova vaga: ${opp.title.substring(0, 40)}...`, 'warning', 6000);
+                } else {
+                    showToast(`📡 Nova oportunidade: ${opp.title.substring(0, 40)}...`, 'info', 5000);
+                }
+            });
+        }
+
+        // Merge without overwriting dismissed
         const existingIds = state.opportunities ? state.opportunities.map(x => x.id) : [];
-        mappedOpps.forEach(newOpp => {
+        allOpportunities.forEach(newOpp => {
             if (!existingIds.includes(newOpp.id)) {
                 if (!state.opportunities) state.opportunities = [];
                 state.opportunities.push(newOpp);
             } else {
-                // Update properties but keep status (so if user dismissed it stays dismissed)
                 const existing = state.opportunities.find(x => x.id === newOpp.id);
-                existing.aiScore = newOpp.aiScore;
-                existing.aiTier = newOpp.aiTier;
-                existing.aiProposal = newOpp.aiProposal;
-                existing.aiCost = newOpp.aiCost;
-                existing.aiLLMs = newOpp.aiLLMs;
+                Object.assign(existing, newOpp);
             }
         });
 
         saveState(state);
-        renderRadar();
+        if (newOpportunities) {
+            renderRadar();
+            newOpportunities = false;
+        }
 
     } catch (e) {
-        console.warn('Não foi possível fazer o fetch do radar_opportunities.json (verifique se está rodando via http-server).', e);
+        console.warn('Erro ao fazer polling:', e);
     }
 }
 
-// Initial fetch attempt
-fetchRadarData();
+// Start polling on page load
+document.addEventListener('DOMContentLoaded', () => {
+    pollAllSources(); // Initial fetch
+    pollInterval = setInterval(pollAllSources, 5000); // Poll every 5s
+});
+
+// ========================
+// Countdown Timer (FEATURE 6)
+// ========================
+
+function updateCountdownTimer() {
+    const now = new Date();
+    const deadline = new Date('2026-12-31');
+    const diffMs = deadline - now;
+
+    if (diffMs <= 0) {
+        document.getElementById('daysLeft').innerHTML = '<span style="color: var(--status-critical); animation: pulse 1s infinite;">EXPIRADO!</span>';
+        return;
+    }
+
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+    const countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    const el = document.getElementById('daysLeft');
+
+    // Piscar em vermelho quando < 30 dias
+    if (days < 30) {
+        el.innerHTML = `<span style="animation: blink 0.8s infinite; color: var(--status-critical);">${countdownText}</span>`;
+    } else {
+        el.textContent = countdownText;
+    }
+
+    // Daily needed
+    const dailyNeeded = days > 0 ? Math.ceil((2000000 - state.stats.totalIncome) / days) : 0;
+    const dailyEl = document.getElementById('dailyNeeded');
+    if (dailyEl) {
+        dailyEl.textContent = `R$ ${dailyNeeded.toLocaleString('pt-BR')}`;
+    }
+}
 
 function renderDate() {
     const now = new Date();
     const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
     document.getElementById('metaDate').textContent = dateStr;
 
-    // Days left until 31/12/2026
-    const deadline = new Date('2026-12-31');
-    const diffMs = deadline - now;
-    const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-    document.getElementById('daysLeft').textContent = daysLeft;
+    // Initial countdown update
+    updateCountdownTimer();
 
-    // Daily needed
-    const needed = daysLeft > 0 ? Math.ceil((2000000 - state.stats.totalIncome) / daysLeft) : 0;
-    document.getElementById('dailyNeeded').textContent = `R$ ${needed.toLocaleString('pt-BR')}`;
+    // Update countdown every second
+    if (!window.__countdownInterval) {
+        window.__countdownInterval = setInterval(updateCountdownTimer, 1000);
+    }
 }
 
 function renderVitalBars() {
@@ -751,9 +878,56 @@ function calcRoiPerHour(opp) {
     return (avgReward / opp.effortHours).toFixed(0);
 }
 
+// ========================
+// Radar Filters (FEATURE 3)
+// ========================
+
+const FILTERS_STORAGE_KEY = 'radar_filters';
+
+function getRadarFilters() {
+    try {
+        const saved = localStorage.getItem(FILTERS_STORAGE_KEY);
+        return saved ? JSON.parse(saved) : { platform: '', tier: '', scoreMin: 0 };
+    } catch (e) {
+        return { platform: '', tier: '', scoreMin: 0 };
+    }
+}
+
+function saveRadarFilters(filters) {
+    try {
+        localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(filters));
+    } catch (e) {
+        console.warn('Falha ao salvar filtros', e);
+    }
+}
+
+function applyRadarFilters(opportunities) {
+    const filters = getRadarFilters();
+
+    return opportunities.filter(opp => {
+        // Platform filter
+        if (filters.platform && opp.platform !== filters.platform) return false;
+
+        // Tier filter
+        if (filters.tier) {
+            const oppTier = opp.aiTier || (opp.aiScore >= 80 ? 'hot' : opp.aiScore >= 50 ? 'warm' : 'cool');
+            if (oppTier !== filters.tier) return false;
+        }
+
+        // Score filter
+        const oppScore = opp.aiScore || 50;
+        if (oppScore < filters.scoreMin) return false;
+
+        return true;
+    });
+}
+
 function renderRadar() {
     const tbody = document.getElementById('radarTableBody');
-    const activeOpps = (state.opportunities || []).filter(o => o.status === 'active');
+    let activeOpps = (state.opportunities || []).filter(o => o.status === 'active');
+
+    // Apply filters
+    activeOpps = applyRadarFilters(activeOpps);
 
     document.getElementById('radarCount').textContent = `${activeOpps.length} oportunidade${activeOpps.length !== 1 ? 's' : ''}`;
 
@@ -812,6 +986,7 @@ function renderRadar() {
                 <td>
                     <a href="${opp.url}" target="_blank" class="radar-btn-apply">APLICAR →</a>
                     <button class="radar-btn-apply" onclick="moveToKanban('${opp.id}')" title="Mover para CRM Kanban" style="margin-left:5px; border-color:var(--expansion-blue); color:var(--expansion-blue)">+ KANBAN</button>
+                    <button class="radar-btn-apply" onclick="copyProposal('${opp.id}')" title="Copiar proposta pronta para clipboard" style="margin-left:5px; border-color:#10b981; color:#10b981">📋 CÓPIA</button>
                     <button class="radar-btn-dismiss" onclick="dismissOpportunity('${opp.id}')" title="Descartar">✕</button>
                 </td>
             </tr>
@@ -879,6 +1054,44 @@ function dismissOpportunity(id) {
 }
 
 // ========================
+// Copy Proposal (FEATURE 4)
+// ========================
+
+async function copyProposal(opportunityId) {
+    try {
+        const response = await fetch(`/api/proposals/${opportunityId}`);
+
+        if (!response.ok) {
+            // Try common proposal IDs
+            const proposals = ['PROPOSAL-' + opportunityId, 'PROPOSAL-' + opportunityId + '-HOT'];
+            let found = false;
+
+            for (const propId of proposals) {
+                const propResponse = await fetch(`/api/proposals/${propId}`);
+                if (propResponse.ok) {
+                    const data = await propResponse.json();
+                    await navigator.clipboard.writeText(data.content);
+                    showToast(`✅ Proposta copiada! ${data.filename}`, 'success');
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                showToast('⏳ Proposta ainda não gerada para esta vaga', 'warning');
+            }
+        } else {
+            const data = await response.json();
+            await navigator.clipboard.writeText(data.content);
+            showToast(`✅ Proposta copiada! Cole na plataforma.`, 'success');
+        }
+    } catch (error) {
+        console.error('Erro ao copiar proposta:', error);
+        showToast('❌ Erro ao copiar proposta. Tente novamente.', 'error');
+    }
+}
+
+// ========================
 // UI Helpers
 // ========================
 
@@ -890,20 +1103,66 @@ function closeModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-function showToast(message) {
+// ========================
+// Toast Notification System (FEATURE 1)
+// ========================
+
+function showToast(message, type = 'info', duration = 5000) {
     const toast = document.createElement('div');
+
+    // Type-based styling
+    const typeStyles = {
+        success: { bg: 'rgba(16, 185, 129, 0.15)', border: '#10b981', color: '#10b981', icon: '✅' },
+        warning: { bg: 'rgba(245, 158, 11, 0.15)', border: '#f59e0b', color: '#f59e0b', icon: '⚠️' },
+        error: { bg: 'rgba(239, 68, 68, 0.15)', border: '#ef4444', color: '#ef4444', icon: '❌' },
+        info: { bg: 'rgba(6, 182, 212, 0.15)', border: '#06b6d4', color: '#06b6d4', icon: 'ℹ️' }
+    };
+
+    const style = typeStyles[type] || typeStyles.info;
+
     toast.style.cssText = `
         position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
-        padding: 1rem 1.5rem; background: #1a1a3a; border: 1px solid #ffd700;
-        border-radius: 8px; color: #ffd700; font-size: 0.85rem; font-weight: 600;
-        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
-        animation: slide-up 0.3s ease, fade-in 0.3s ease;
+        padding: 1rem 1.5rem; background: ${style.bg}; border: 2px solid ${style.border};
+        border-radius: 8px; color: ${style.color}; font-size: 0.9rem; font-weight: 600;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
         font-family: 'Inter', sans-serif;
+        animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1), toastFadeOut 0.4s ease-out ${duration - 400}ms forwards;
+        backdrop-filter: blur(4px);
+        max-width: 300px;
+        word-wrap: break-word;
     `;
-    toast.textContent = message;
+
+    toast.innerHTML = `<span style="margin-right: 0.5rem;">${style.icon}</span>${message}`;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
+
+    // Barra de progresso
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+        position: absolute; bottom: 0; left: 0; height: 3px;
+        background: ${style.color}; border-radius: 0 0 6px 0;
+        animation: progressFill ${duration}ms linear forwards;
+    `;
+    toast.appendChild(progressBar);
+
+    setTimeout(() => toast.remove(), duration + 400);
 }
+
+// Add CSS keyframes for toast animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes toastSlideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes toastFadeOut {
+        to { opacity: 0; transform: translateX(400px); }
+    }
+    @keyframes progressFill {
+        from { width: 100%; }
+        to { width: 0; }
+    }
+`;
+document.head.appendChild(style);
 
 // ========================
 // Particle System (Matrix Rain)
@@ -963,6 +1222,95 @@ document.getElementById('btnAddMission').addEventListener('click', () => openMod
 document.getElementById('btnAddEntry').addEventListener('click', () => openModal('modalFinancial'));
 document.getElementById('btnAddOpportunity').addEventListener('click', () => openModal('modalOpportunity'));
 
+// ========================
+// War Room Mode (FEATURE 8)
+// ========================
+
+function toggleWarRoomMode() {
+    const isActive = document.body.classList.toggle('war-room-mode');
+    const btn = document.getElementById('btnWarRoom');
+
+    if (btn) {
+        btn.classList.toggle('active', isActive);
+    }
+
+    localStorage.setItem('warRoomMode', isActive);
+
+    if (isActive) {
+        showToast('⚔️ WAR ROOM ATIVADO - Modo crítico', 'warning', 3000);
+    } else {
+        showToast('🚀 War Room desativado', 'info', 2000);
+    }
+}
+
+// Load war room mode from localStorage
+document.addEventListener('DOMContentLoaded', () => {
+    const warRoomActive = localStorage.getItem('warRoomMode') === 'true';
+    if (warRoomActive) {
+        document.body.classList.add('war-room-mode');
+        setTimeout(() => {
+            const btn = document.getElementById('btnWarRoom');
+            if (btn) btn.classList.add('active');
+        }, 100);
+    }
+});
+
+// Radar Filters (FEATURE 3)
+const filterPlatform = document.getElementById('filterPlatform');
+const filterTier = document.getElementById('filterTier');
+const filterScore = document.getElementById('filterScore');
+const filterScoreValue = document.getElementById('filterScoreValue');
+const btnClearFilters = document.getElementById('btnClearFilters');
+
+// Load saved filters
+const savedFilters = getRadarFilters();
+if (filterPlatform) filterPlatform.value = savedFilters.platform || '';
+if (filterTier) filterTier.value = savedFilters.tier || '';
+if (filterScore) {
+    filterScore.value = savedFilters.scoreMin || 0;
+    if (filterScoreValue) filterScoreValue.textContent = savedFilters.scoreMin || '0';
+}
+
+// Filter event listeners
+if (filterPlatform) filterPlatform.addEventListener('change', () => {
+    const filters = { platform: filterPlatform.value, tier: filterTier.value, scoreMin: parseInt(filterScore.value) };
+    saveRadarFilters(filters);
+    renderRadar();
+});
+
+if (filterTier) filterTier.addEventListener('change', () => {
+    const filters = { platform: filterPlatform.value, tier: filterTier.value, scoreMin: parseInt(filterScore.value) };
+    saveRadarFilters(filters);
+    renderRadar();
+});
+
+if (filterScore) filterScore.addEventListener('input', () => {
+    const scoreVal = parseInt(filterScore.value);
+    if (filterScoreValue) filterScoreValue.textContent = scoreVal;
+});
+
+if (filterScore) filterScore.addEventListener('change', () => {
+    const filters = { platform: filterPlatform.value, tier: filterTier.value, scoreMin: parseInt(filterScore.value) };
+    saveRadarFilters(filters);
+    renderRadar();
+});
+
+if (btnClearFilters) btnClearFilters.addEventListener('click', () => {
+    saveRadarFilters({ platform: '', tier: '', scoreMin: 0 });
+    if (filterPlatform) filterPlatform.value = '';
+    if (filterTier) filterTier.value = '';
+    if (filterScore) filterScore.value = '0';
+    if (filterScoreValue) filterScoreValue.textContent = '0';
+    renderRadar();
+    showToast('Filtros limpos', 'info');
+});
+
+// War Room Button (FEATURE 8)
+const btnWarRoom = document.getElementById('btnWarRoom');
+if (btnWarRoom) {
+    btnWarRoom.addEventListener('click', toggleWarRoomMode);
+}
+
 document.querySelectorAll('.missions-tabs .tab').forEach(tab => {
     tab.addEventListener('click', () => renderMissions(tab.dataset.tab));
 });
@@ -982,12 +1330,71 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ========================
+// Intersection Observer - Entry Animations (FEATURE 7)
+// ========================
+
+function initEntryAnimations() {
+    const addAnimationStyles = () => {
+        const style = document.createElement('style');
+        style.textContent = `
+            .section-organism, .section-organs, .section-radar, .section-kanban,
+            .section-missions, .section-rewards, .section-financials {
+                opacity: 0;
+                transform: translateY(20px);
+                animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+
+            @keyframes fadeInUp {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .organ-card, .mission-item, .reward-card, .fin-card {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            .organ-card.visible, .mission-item.visible, .reward-card.visible, .fin-card.visible {
+                animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    };
+
+    addAnimationStyles();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                // Staggered animation for child elements
+                const children = entry.target.querySelectorAll('.organ-card, .mission-item, .reward-card, .fin-card');
+                children.forEach((child, childIndex) => {
+                    setTimeout(() => {
+                        child.classList.add('visible');
+                    }, childIndex * 50);
+                });
+
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    // Observe all sections
+    document.querySelectorAll('.section-organism, .section-organs, .section-radar, .section-kanban, .section-missions, .section-rewards, .section-financials').forEach(section => {
+        observer.observe(section);
+    });
+}
+
+// ========================
 // Init
 // ========================
 
 document.addEventListener('DOMContentLoaded', () => {
     render();
     initParticles();
+    initEntryAnimations();
     checkRewards();
     console.log(`
     ◬ ENTIDADOS v1.0

@@ -30,6 +30,7 @@
             </div>
         </div>
         <div class="header-right">
+            <button id="btnWarRoom" class="btn-war-room">⚔️ WAR ROOM</button>
             <div class="meta-date" id="metaDate">28 feb, 2026</div>
             <div class="meta-days">
                 <span class="meta-label">Dias restantes</span>
@@ -228,6 +229,39 @@
                     <button class="btn-add-mission" id="btnAddOpportunity">+ Adicionar</button>
                 </div>
             </div>
+
+            <!-- Filters Bar (FEATURE 3) -->
+            <div class="radar-filters">
+                <div class="filter-group">
+                    <label for="filterPlatform">Plataforma:</label>
+                    <select id="filterPlatform" class="filter-input">
+                        <option value="">Todas</option>
+                        <option value="workana">Workana</option>
+                        <option value="freelas">99Freelas</option>
+                        <option value="fiverr">Fiverr</option>
+                        <option value="upwork">Upwork</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterTier">Tier:</label>
+                    <select id="filterTier" class="filter-input">
+                        <option value="">Todos</option>
+                        <option value="hot">🔥 HOT</option>
+                        <option value="warm">🌡️ WARM</option>
+                        <option value="cool">❄️ COOL</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterScore">Score Mínimo:</label>
+                    <input type="range" id="filterScore" class="filter-input" min="0" max="100" value="0">
+                    <span id="filterScoreValue" style="font-size: 0.8rem; color: var(--text-tertiary);">0</span>
+                </div>
+
+                <button id="btnClearFilters" class="btn-clear-filters">Limpar Filtros</button>
+            </div>
+
             <div class="radar-legend">
                 <span class="legend-item"><span class="platform-dot workana"></span>Workana</span>
                 <span class="legend-item"><span class="platform-dot freelas"></span>99Freelas</span>
@@ -324,6 +358,41 @@
                         <span class="col-count">0</span>
                     </div>
                     <div class="kanban-cards"></div>
+                </div>
+            </div>
+
+            <!-- Pipeline Revenue Simulator (FEATURE 5) -->
+            <div class="pipeline-simulator">
+                <h4 class="pipeline-title">💰 Pipeline Projetado</h4>
+                <div class="pipeline-bars">
+                    <div class="pipeline-item">
+                        <span class="pipeline-stage">Lead</span>
+                        <span class="pipeline-value" id="pipelineLead">R$ 0</span>
+                    </div>
+                    <div class="pipeline-item">
+                        <span class="pipeline-stage">Enviado</span>
+                        <span class="pipeline-value" id="pipelineEnviado">R$ 0</span>
+                    </div>
+                    <div class="pipeline-item">
+                        <span class="pipeline-stage">Negociação</span>
+                        <span class="pipeline-value" id="pipelineNegociacao">R$ 0</span>
+                    </div>
+                    <div class="pipeline-item">
+                        <span class="pipeline-stage">Execução</span>
+                        <span class="pipeline-value" id="pipelineExecucao">R$ 0</span>
+                    </div>
+                    <div class="pipeline-item">
+                        <span class="pipeline-stage">Entregue</span>
+                        <span class="pipeline-value" id="pipelineEntregue">R$ 0</span>
+                    </div>
+                    <div class="pipeline-item">
+                        <span class="pipeline-stage">Pago</span>
+                        <span class="pipeline-value" id="pipelinePago">R$ 0</span>
+                    </div>
+                    <div class="pipeline-item highlight">
+                        <span class="pipeline-stage">Total</span>
+                        <span class="pipeline-value" id="pipelineTotal">R$ 0</span>
+                    </div>
                 </div>
             </div>
         </section>

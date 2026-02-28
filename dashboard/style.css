@@ -211,6 +211,53 @@ header#header {
   align-items: flex-end;
 }
 
+/* War Room Button (FEATURE 8) */
+.btn-war-room {
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid var(--status-critical);
+  border-radius: var(--radius-md);
+  color: var(--status-critical);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.btn-war-room:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.btn-war-room.active {
+  background: var(--status-critical);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  animation: pulse 1s infinite;
+}
+
+body.war-room-mode {
+  --bg-primary: #1a0000;
+}
+
+body.war-room-mode .section-organs,
+body.war-room-mode .section-repertoire,
+body.war-room-mode .section-missions,
+body.war-room-mode .section-rewards,
+body.war-room-mode .section-financials {
+  display: none;
+}
+
+body.war-room-mode .section-organism,
+body.war-room-mode .section-radar,
+body.war-room-mode .section-kanban {
+  opacity: 1 !important;
+}
+
 .meta-label {
   font-size: 0.65rem;
   color: var(--text-tertiary);
@@ -669,6 +716,75 @@ header#header {
   box-shadow: 0 8px 24px var(--primary-purple-glow);
 }
 
+/* Radar Filters (FEATURE 3) */
+.radar-filters {
+  display: flex;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-md);
+  padding: var(--gap-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.filter-input {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  transition: all var(--transition-fast);
+  min-width: 120px;
+}
+
+.filter-input:focus,
+.filter-input:hover {
+  border-color: var(--primary-purple);
+  background: rgba(124, 58, 237, 0.05);
+  outline: none;
+}
+
+.btn-clear-filters {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-clear-filters:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background: rgba(100, 100, 120, 0.2);
+}
+
 .radar-legend {
   display: flex;
   gap: 1rem;
@@ -900,6 +1016,74 @@ header#header {
   font-size: 0.9rem;
   color: var(--text-secondary);
   font-weight: 600;
+}
+
+/* Pipeline Revenue Simulator (FEATURE 5) */
+.pipeline-simulator {
+  margin-top: var(--gap);
+  padding: var(--gap);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+}
+
+.pipeline-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--gap-md);
+  letter-spacing: 0.5px;
+}
+
+.pipeline-bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--gap-md);
+}
+
+.pipeline-item {
+  padding: var(--gap-md);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.05));
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pipeline-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-purple);
+}
+
+.pipeline-item.highlight {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.15));
+  border-color: var(--primary-purple);
+  box-shadow: 0 8px 24px var(--primary-purple-glow);
+}
+
+.pipeline-stage {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.pipeline-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--primary-purple);
+  animation: pulseValue 0.6s ease;
+}
+
+@keyframes pulseValue {
+  0% { scale: 1; }
+  50% { scale: 1.1; color: var(--cyan-accent); }
+  100% { scale: 1; color: var(--primary-purple); }
 }
 
 .kanban-board {
