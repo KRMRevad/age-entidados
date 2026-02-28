@@ -203,6 +203,158 @@ app.get('/api/radar/:id', (req, res) => {
 });
 
 // ============================================================
+// WEBHOOK — N8N INTEGRATION
+// ============================================================
+
+const WEBHOOK_FILE = path.join(WORK_DIR, 'data/n8n-opportunities.json');
+
+function ensureWebhookDir() {
+  const webhookDir = path.dirname(WEBHOOK_FILE);
+  if (!fs.existsSync(webhookDir)) {
+    fs.mkdirSync(webhookDir, { recursive: true });
+  }
+}
+
+function loadWebhookData() {
+  try {
+    ensureWebhookDir();
+    if (fs.existsSync(WEBHOOK_FILE)) {
+      const data = fs.readFileSync(WEBHOOK_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao ler webhook data:', error.message);
+  }
+  return [];
+}
+
+function saveWebhookData(data) {
+  try {
+    ensureWebhookDir();
+    fs.writeFileSync(WEBHOOK_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`✅ Webhook data salvo: ${WEBHOOK_FILE} (${data.length} registros)`);
+  } catch (error) {
+    console.error('❌ Erro ao salvar webhook data:', error.message);
+  }
+}
+
+/**
+ * POST /api/webhook/n8n
+ * Recebe payload do N8N com nova oportunidade
+ * Esperado: { platform, title, url, reward, effort_hours, tier, score, description }
+ */
+app.post('/api/webhook/n8n', (req, res) => {
+  try {
+    const payload = req.body;
+
+    // Validação básica
+    if (!payload.title || !payload.url) {
+      return res.status(400).json({
+        success: false,
+        error: 'Payload inválido. Requerido: title, url',
+      });
+    }
+
+    // Carregar dados existentes
+    let opportunities = loadWebhookData();
+
+    // Criar registro novo
+    const newOpportunity = {
+      id: `n8n-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString(),
+      platform: payload.platform || 'workana',
+      title: payload.title,
+      url: payload.url,
+      reward: payload.reward || payload.rewardRaw || 'N/A',
+      effort_hours: payload.effort_hours || 0,
+      tier: payload.tier || 'cool',
+      score: payload.score || 50,
+      description: payload.description || '',
+      status: 'novo', // novo, processado, enviado, recusado, aceito
+    };
+
+    // Adicionar ao início (mais recentes primeiro)
+    opportunities.unshift(newOpportunity);
+
+    // Manter apenas últimos 100 registros
+    if (opportunities.length > 100) {
+      opportunities = opportunities.slice(0, 100);
+    }
+
+    // Salvar
+    saveWebhookData(opportunities);
+
+    console.log(`🎯 Oportunidade N8N recebida: ${newOpportunity.title}`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Oportunidade recebida e salva',
+      opportunity: newOpportunity,
+      totalCount: opportunities.length,
+    });
+  } catch (error) {
+    console.error('❌ Erro no webhook:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/webhook/n8n
+ * Retorna todas as oportunidades recebidas via webhook
+ */
+app.get('/api/webhook/n8n', (req, res) => {
+  try {
+    const opportunities = loadWebhookData();
+    const stats = {
+      total: opportunities.length,
+      novo: opportunities.filter(o => o.status === 'novo').length,
+      processado: opportunities.filter(o => o.status === 'processado').length,
+      hot: opportunities.filter(o => o.tier === 'hot').length,
+      warm: opportunities.filter(o => o.tier === 'warm').length,
+      cool: opportunities.filter(o => o.tier === 'cool').length,
+    };
+
+    res.json({
+      success: true,
+      stats,
+      opportunities,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/webhook/n8n/hot
+ * Retorna apenas oportunidades "HOT" recebidas via webhook
+ */
+app.get('/api/webhook/n8n/hot', (req, res) => {
+  try {
+    const opportunities = loadWebhookData();
+    const hotOpps = opportunities.filter(o => o.tier === 'hot' || o.score >= 80);
+
+    res.json({
+      success: true,
+      count: hotOpps.length,
+      opportunities: hotOpps,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
 // ROTAS — HEALTH & STATUS
 // ============================================================
 
@@ -272,8 +424,23 @@ app.get('/', (req, res) => {
       'GET /api/radar': 'Todas as oportunidades',
       'GET /api/radar/hot': 'Apenas oportunidades HOT',
       'GET /api/radar/:id': 'Detalhes de uma oportunidade',
+      'POST /api/webhook/n8n': '🚀 [N8N] Receber nova oportunidade',
+      'GET /api/webhook/n8n': 'Listar oportunidades recebidas via N8N',
+      'GET /api/webhook/n8n/hot': 'Apenas oportunidades HOT do N8N',
     },
   });
+});
+
+/**
+ * GET /dashboard-webhook
+ * Dashboard com polling em tempo real para oportunidades do N8N
+ */
+app.get('/dashboard-webhook', (req, res) => {
+  const dashboardPath = path.join(WORK_DIR, 'dashboard-webhook.html');
+  if (fs.existsSync(dashboardPath)) {
+    return res.sendFile(dashboardPath);
+  }
+  res.status(404).json({ error: 'Dashboard not found' });
 });
 
 /**
@@ -385,6 +552,14 @@ app.get('/dashboard', (req, res) => {
     .tier-warm { background: #ffd93d; color: #000; }
     .tier-cool { background: #6bcf7f; }
 
+    .proposal-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 6px; border: 1px dashed #ffd93d; font-size: 0.9em; margin-top: 15px; color: #ddd; white-space: pre-wrap; display: none; }
+    .proposal-box.active { display: block; }
+    .btn { background: #ffd93d; color: #000; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85em; font-weight: bold; display: inline-block; cursor: pointer; border: none; margin-top: 10px; margin-right: 10px; transition: all 0.2s; }
+    .btn:hover { background: #e5c337; transform: translateY(-2px); }
+    .btn-outline { background: transparent; color: #ffd93d; border: 1px solid #ffd93d; }
+    .btn-outline:hover { background: rgba(255, 217, 61, 0.1); }
+    .action-bar { margin-top: 10px; }
+
     .footer { color: #666; font-size: 0.85em; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
     .footer p { margin-bottom: 10px; }
 
@@ -474,6 +649,16 @@ app.get('/dashboard', (req, res) => {
               <div class="project-meta">
                 ID: ${p.id} • Esforço: ${p.effort_hours}h • Recompensa: ${p.rewardRaw || 'N/A'}
               </div>
+              <div class="action-bar">
+                <a href="${p.url}" target="_blank" class="btn btn-outline">🔗 Abrir na Workana</a>
+                ${p.proposal_draft ? `<button class="btn" onclick="toggleProposal('${p.id}')">📝 Ver Proposta Pronta</button>` : ''}
+              </div>
+              ${p.proposal_draft ? `
+              <div id="prop-${p.id}" class="proposal-box">
+                <div style="margin-bottom: 10px; text-align: right;">
+                  <button class="btn btn-outline" style="margin:0; font-size:0.75em;" onclick="copyToClipboard('${p.id}')">📋 Copiar Texto</button>
+                </div><div id="text-${p.id}">${p.proposal_draft}</div>
+              </div>` : `<div style="margin-top: 10px; color: #888; font-size: 0.85em;"><i>⌛ Proposta em processamento...</i></div>`}
             </div>
           `).join('')}
       </div>
@@ -484,6 +669,21 @@ app.get('/dashboard', (req, res) => {
       <p>💡 Para dados via API: curl http://localhost:${PORT}/api/health</p>
     </div>
   </div>
+
+  <script>
+    function toggleProposal(id) {
+      document.getElementById('prop-' + id).classList.toggle('active');
+    }
+    function copyToClipboard(id) {
+      const textNode = document.getElementById('text-' + id);
+      navigator.clipboard.writeText(textNode.innerText).then(() => {
+        alert('🎯 Proposta copiada! Cole na Workana e envie a proposta.');
+      }).catch(err => {
+        console.error('Falha ao copiar:', err);
+        alert('Erro ao copiar. Selecione o texto manualmente.');
+      });
+    }
+  </script>
 </body>
 </html>
   `;
