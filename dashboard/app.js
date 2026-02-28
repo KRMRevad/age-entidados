@@ -297,9 +297,9 @@ function renderKanban() {
         countEl.textContent = opps.length;
 
         container.innerHTML = opps.map(opp => {
-            const platformLabels = { workana: 'WKN', freelas: '99F', fiverr: 'FVR', upwork: 'UPW', other: 'OUT' };
-            const badgeClass = opp.platform ? opp.platform.toLowerCase() : 'other';
-            const label = platformLabels[badgeClass] || 'OUT';
+            const platformLabels = { workana: 'WKN', freelas: '99F', '99freelas': '99F', fiverr: 'FVR', upwork: 'UPW', other: 'OUT' };
+            const badgeClass = opp.platform ? (opp.platform.toLowerCase() === '99freelas' ? 'freelas' : opp.platform.toLowerCase()) : 'other';
+            const label = platformLabels[opp.platform ? opp.platform.toLowerCase() : 'other'] || 'OUT';
 
             return `
                 <div class="k-card" draggable="true" ondragstart="dragStart(event, '${opp.id}')" ondragend="dragEnd(event)" id="kcard-${opp.id}">
@@ -437,7 +437,8 @@ async function pollAllSources() {
                 aiProposal: o.proposal_draft,
                 aiCost: o.estimated_api_cost_usd,
                 aiLLMs: o.recommended_llms,
-                source: 'radar'
+                source: 'radar',
+                status: 'active'
             }));
             allOpportunities = allOpportunities.concat(mappedRadar);
         }
@@ -460,7 +461,8 @@ async function pollAllSources() {
                 aiProposal: '',
                 aiCost: 0,
                 aiLLMs: [],
-                source: 'webhook'
+                source: 'webhook',
+                status: 'active'
             }));
             allOpportunities = allOpportunities.concat(mappedWebhook);
         }
@@ -942,6 +944,7 @@ function renderRadar() {
     const platformLabels = {
         workana: 'WKN',
         freelas: '99F',
+        '99freelas': '99F',
         fiverr: 'FVR',
         upwork: 'UPW',
         other: 'OUT'
@@ -966,7 +969,7 @@ function renderRadar() {
                 <td><span class="radar-rank ${rankClass}">${i + 1}</span></td>
                 <td><span class="radar-score ${scoreClass}" title="Score Baseado no CÓDEX: ${opp.aiScore || score}">${opp.aiScore || score}</span></td>
                 <td>
-                    <span class="radar-platform-badge ${opp.platform.toLowerCase()}">
+                    <span class="radar-platform-badge ${opp.platform.toLowerCase() === '99freelas' ? 'freelas' : opp.platform.toLowerCase()}">
                         ${platformLabels[opp.platform.toLowerCase()] || 'OUT'}
                     </span>
                 </td>
