@@ -1,0 +1,11 @@
+[
+  {
+    "id": "fu-1772311437675-7njl3s7tj",
+    "opportunityId": "test-opp-123",
+    "scheduledAt": "2026-03-05T10:00:00Z",
+    "message": "Follow up on test project",
+    "channel": "email",
+    "createdAt": "2026-02-28T20:43:57.675Z",
+    "completed": false
+  }
+]

@@ -33,7 +33,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from dashboard directory (SPA served here)
-app.use(express.static(path.join(WORK_DIR, 'dashboard')));
+app.use('/dashboard', express.static(path.join(WORK_DIR, 'dashboard')));
 
 // Inicializar Supabase (opcional, se configurado)
 let supabase = null;
@@ -476,6 +476,660 @@ app.get('/api/proposals/:id', (req, res) => {
  */
 
 // ============================================================
+// ROTAS — PROPOSALS (FEATURE 1)
+// ============================================================
+
+/**
+ * GET /api/proposals
+ * Lista todas as propostas em proposals/
+ * Retorna: [ { id, filename, title, tier, score, timestamp }, ... ]
+ */
+app.get('/api/proposals', (req, res) => {
+  try {
+    const proposals = [];
+
+    if (!fs.existsSync(PROPOSALS_DIR)) {
+      return res.json({
+        success: true,
+        proposals: [],
+        count: 0,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const files = fs.readdirSync(PROPOSALS_DIR).filter(f => f.endsWith('.md'));
+
+    files.forEach(filename => {
+      try {
+        const filePath = path.join(PROPOSALS_DIR, filename);
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const stat = fs.statSync(filePath);
+
+        // Extrair título da primeira linha (# Heading)
+        const titleMatch = content.match(/^#\s+(.+?)$/m);
+        const title = titleMatch ? titleMatch[1] : filename.replace('.md', '');
+
+        // Extrair tier e score dos metadados (se existirem)
+        const tierMatch = content.match(/tier:\s*(\w+)/i);
+        const scoreMatch = content.match(/score:\s*(\d+)/i);
+
+        const tier = tierMatch ? tierMatch[1].toLowerCase() : 'cool';
+        const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+
+        // Extrair ID do filename (PROPOSAL-{id}.md ou PROPOSAL-{id}-HOT.md)
+        const idMatch = filename.match(/PROPOSAL-(.+?)(?:-HOT)?\.md/);
+        const id = idMatch ? idMatch[1] : filename.replace('.md', '');
+
+        proposals.push({
+          id,
+          filename,
+          title,
+          tier,
+          score,
+          timestamp: stat.mtime.toISOString(),
+        });
+      } catch (err) {
+        console.error(`Erro ao processar proposta ${filename}:`, err.message);
+      }
+    });
+
+    // Ordenar por data (mais recente primeiro)
+    proposals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    res.json({
+      success: true,
+      proposals,
+      count: proposals.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
+// ROTAS — CRM PIPELINE (FEATURE 2 & 3)
+// ============================================================
+
+const CRM_FILE = path.join(WORK_DIR, 'data/crm-pipeline.json');
+const FINANCIAL_LOG_FILE = path.join(WORK_DIR, 'data/financial-log.json');
+
+function ensureDataDir() {
+  const dataDir = path.dirname(CRM_FILE);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+}
+
+function loadCrmPipeline() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(CRM_FILE)) {
+      const data = fs.readFileSync(CRM_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao ler CRM pipeline:', error.message);
+  }
+  return {};
+}
+
+function saveCrmPipeline(data) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(CRM_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`✅ CRM pipeline salvo: ${CRM_FILE}`);
+  } catch (error) {
+    console.error('❌ Erro ao salvar CRM pipeline:', error.message);
+  }
+}
+
+function loadFinancialLog() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(FINANCIAL_LOG_FILE)) {
+      const data = fs.readFileSync(FINANCIAL_LOG_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao ler financial log:', error.message);
+  }
+  return [];
+}
+
+function saveFinancialLog(data) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(FINANCIAL_LOG_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`✅ Financial log salvo: ${FINANCIAL_LOG_FILE}`);
+  } catch (error) {
+    console.error('❌ Erro ao salvar financial log:', error.message);
+  }
+}
+
+/**
+ * POST /api/opportunities/:id/kanban
+ * Move uma oportunidade no pipeline CRM
+ * Body: { status: 'lead' | 'sent' | 'negotiation' | 'hired' | 'delivered' | 'paid' | 'lost' }
+ * Quando status='paid', incrementa receita em financial_log
+ */
+app.post('/api/opportunities/:id/kanban', (req, res) => {
+  try {
+    const oppId = req.params.id;
+    const { status } = req.body;
+
+    const validStatuses = ['lead', 'sent', 'negotiation', 'hired', 'delivered', 'paid', 'lost'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: `Status inválido. Permitidos: ${validStatuses.join(', ')}`,
+      });
+    }
+
+    // Carregar dados de oportunidades (radar)
+    const radarOpps = loadRadar();
+    const opp = radarOpps.find(p => p.id === oppId);
+
+    if (!opp) {
+      return res.status(404).json({
+        success: false,
+        error: 'Oportunidade não encontrada',
+      });
+    }
+
+    // Carregar/atualizar CRM
+    let crm = loadCrmPipeline();
+    crm[oppId] = {
+      id: oppId,
+      title: opp.title,
+      platform: opp.platform,
+      reward: opp.reward_raw || opp.reward || 'N/A',
+      status,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Se status é 'paid', registrar receita
+    if (status === 'paid') {
+      const financialLog = loadFinancialLog();
+      const amount = parseInt(opp.reward_raw || opp.reward || 0) || 0;
+
+      financialLog.push({
+        id: `fin-${oppId}`,
+        opportunityId: oppId,
+        title: opp.title,
+        amount,
+        type: 'revenue',
+        timestamp: new Date().toISOString(),
+      });
+
+      saveFinancialLog(financialLog);
+      console.log(`💰 Receita registrada: ${opp.title} (${amount})`);
+    }
+
+    saveCrmPipeline(crm);
+
+    res.json({
+      success: true,
+      opportunity: crm[oppId],
+      message: `Oportunidade movida para '${status}'`,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/pipeline
+ * Analytics do funil completo
+ * Retorna métricas: conversion, pipeline_value, distribuição por tier/status
+ */
+app.get('/api/analytics/pipeline', (req, res) => {
+  try {
+    const radarOpps = loadRadar();
+    const webhookOpps = loadWebhookData();
+    const crm = loadCrmPipeline();
+    const financialLog = loadFinancialLog();
+
+    // Contar propostas
+    const proposalsCount = fs.existsSync(PROPOSALS_DIR)
+      ? fs.readdirSync(PROPOSALS_DIR).filter(f => f.endsWith('.md')).length
+      : 0;
+
+    // Calcular pipeline value
+    const pipelineValue = radarOpps.reduce((sum, opp) => {
+      const reward = parseInt(opp.reward_raw || opp.reward || 0) || 0;
+      return sum + reward;
+    }, 0);
+
+    // Contar por status no CRM
+    const statusCounts = {
+      lead: Object.values(crm).filter(o => o.status === 'lead').length,
+      sent: Object.values(crm).filter(o => o.status === 'sent').length,
+      negotiation: Object.values(crm).filter(o => o.status === 'negotiation').length,
+      hired: Object.values(crm).filter(o => o.status === 'hired').length,
+      delivered: Object.values(crm).filter(o => o.status === 'delivered').length,
+      paid: Object.values(crm).filter(o => o.status === 'paid').length,
+      lost: Object.values(crm).filter(o => o.status === 'lost').length,
+    };
+
+    // Contar por plataforma
+    const platformCounts = {};
+    radarOpps.forEach(opp => {
+      const plat = opp.platform || 'unknown';
+      platformCounts[plat] = (platformCounts[plat] || 0) + 1;
+    });
+
+    // Receita realizada
+    const totalRevenue = financialLog.reduce((sum, entry) => sum + (entry.amount || 0), 0);
+
+    // Conversão
+    const totalOpportunities = radarOpps.length;
+    const conversionRate = totalOpportunities > 0
+      ? ((proposalsCount / totalOpportunities) * 100).toFixed(2)
+      : 0;
+
+    res.json({
+      success: true,
+      pipeline: {
+        total_opportunities: totalOpportunities,
+        total_proposals: proposalsCount,
+        conversion_scraped_to_proposal: `${conversionRate}%`,
+        pipeline_value: pipelineValue,
+        total_revenue_realized: totalRevenue,
+      },
+      distribution: {
+        tiers: {
+          hot: radarOpps.filter(o => o.tier === 'hot').length,
+          warm: radarOpps.filter(o => o.tier === 'warm').length,
+          cool: radarOpps.filter(o => o.tier === 'cool').length,
+        },
+        statuses: statusCounts,
+        platforms: platformCounts,
+      },
+      metrics: {
+        avg_score: radarOpps.length > 0
+          ? Math.round(radarOpps.reduce((sum, o) => sum + (o.score || 0), 0) / radarOpps.length)
+          : 0,
+        total_effort_hours: radarOpps.reduce((sum, o) => sum + (o.effort_hours || 0), 0),
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
+// ROTAS — WEBHOOK BATCH (FEATURE 4)
+// ============================================================
+
+/**
+ * POST /api/webhook/n8n/batch
+ * Recebe array de oportunidades
+ * Body: [ { platform, title, url, ... }, ... ]
+ * Retorna: { success: true, processed: N, errors: [] }
+ */
+app.post('/api/webhook/n8n/batch', (req, res) => {
+  try {
+    const { opportunities } = req.body;
+
+    if (!Array.isArray(opportunities)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Esperado: { opportunities: [...] }',
+      });
+    }
+
+    let processed = 0;
+    const errors = [];
+
+    // Carregar dados existentes
+    let allOpps = loadWebhookData();
+
+    opportunities.forEach((payload, idx) => {
+      try {
+        // Validação básica
+        if (!payload.title || !payload.url) {
+          errors.push({
+            index: idx,
+            error: 'Requerido: title, url',
+          });
+          return;
+        }
+
+        // Criar registro novo
+        const newOpp = {
+          id: `n8n-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          timestamp: new Date().toISOString(),
+          platform: payload.platform || 'workana',
+          title: payload.title,
+          url: payload.url,
+          reward: payload.reward || payload.rewardRaw || 'N/A',
+          effort_hours: payload.effort_hours || 0,
+          tier: payload.tier || 'cool',
+          score: payload.score || 50,
+          description: payload.description || '',
+          status: 'novo',
+        };
+
+        allOpps.unshift(newOpp);
+        processed++;
+      } catch (err) {
+        errors.push({
+          index: idx,
+          error: err.message,
+        });
+      }
+    });
+
+    // Manter apenas últimos 100 registros
+    if (allOpps.length > 100) {
+      allOpps = allOpps.slice(0, 100);
+    }
+
+    saveWebhookData(allOpps);
+
+    console.log(`🎯 Batch N8N processado: ${processed} oportunidades, ${errors.length} erros`);
+
+    res.status(201).json({
+      success: true,
+      processed,
+      errors,
+      totalCount: allOpps.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
+// ROTAS — HEALTH DETAILED (FEATURE 5)
+// ============================================================
+
+/**
+ * GET /api/health/detailed
+ * Status detalhado do sistema com uptime, memory, data staleness
+ */
+app.get('/api/health/detailed', (req, res) => {
+  try {
+    const baseHealth = getHealthStatus();
+
+    // Server uptime
+    const uptime = process.uptime();
+    const uptimeFormatted = `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m`;
+
+    // Memory usage
+    const memUsage = process.memoryUsage();
+
+    // Timestamps dos arquivos de dados
+    const getFileTimestamp = (filePath) => {
+      try {
+        if (fs.existsSync(filePath)) {
+          const stat = fs.statSync(filePath);
+          return stat.mtime.toISOString();
+        }
+      } catch (err) {
+        console.error(`Erro ao obter timestamp de ${filePath}:`, err.message);
+      }
+      return null;
+    };
+
+    const lastRadarTime = getFileTimestamp(RADAR_FILE);
+    const lastWebhookTime = getFileTimestamp(WEBHOOK_FILE);
+
+    // Verificar se dados estão "stale" (> 1h)
+    const isStale = (timestamp) => {
+      if (!timestamp) return false;
+      const age = Date.now() - new Date(timestamp).getTime();
+      return age > 3600000; // 1 hora em ms
+    };
+
+    // Contar arquivos em proposals/
+    const proposalsCount = fs.existsSync(PROPOSALS_DIR)
+      ? fs.readdirSync(PROPOSALS_DIR).filter(f => f.endsWith('.md')).length
+      : 0;
+
+    res.json({
+      success: true,
+      system: {
+        uptime: uptimeFormatted,
+        uptime_seconds: Math.floor(uptime),
+        memory_usage: {
+          rss: `${(memUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+          heap_used: `${(memUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+          heap_total: `${(memUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+        },
+      },
+      data_sources: {
+        radar: {
+          last_update: lastRadarTime,
+          status: isStale(lastRadarTime) ? 'stale' : 'online',
+        },
+        webhook: {
+          last_update: lastWebhookTime,
+          status: isStale(lastWebhookTime) ? 'stale' : 'online',
+        },
+      },
+      proposals: {
+        ready: proposalsCount,
+      },
+      vital_bars: baseHealth.barras,
+      radar_stats: baseHealth.radarStats,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
+// ROTAS — AGENT STATUS (FEATURE 6)
+// ============================================================
+
+/**
+ * GET /api/agent-status
+ * Lista todos os agentes disponíveis
+ * Retorna: [ { name, role, specFile }, ... ]
+ */
+app.get('/api/agent-status', (req, res) => {
+  try {
+    const agents = [];
+    const agentsDir = path.join(WORK_DIR, '.antigravity/rules/agents');
+
+    if (!fs.existsSync(agentsDir)) {
+      return res.json({
+        success: true,
+        agents: [],
+        count: 0,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const files = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
+
+    files.forEach(filename => {
+      try {
+        const filePath = path.join(agentsDir, filename);
+        const content = fs.readFileSync(filePath, 'utf-8');
+
+        // Extrair nome e role das primeiras linhas
+        const nameMatch = content.match(/^#\s+(.+?)$/m);
+        const roleMatch = content.match(/\*\*role\*\*:\s*(.+?)$/im) ||
+                         content.match(/role[:\s]+([^\n]+)/i);
+
+        const name = nameMatch ? nameMatch[1] : filename.replace('.md', '');
+        const role = roleMatch ? roleMatch[1].trim() : 'Unknown';
+
+        agents.push({
+          name,
+          role,
+          specFile: filename,
+          lastActive: null, // Será preenchido por future integrations
+        });
+      } catch (err) {
+        console.error(`Erro ao processar agente ${filename}:`, err.message);
+      }
+    });
+
+    res.json({
+      success: true,
+      agents,
+      count: agents.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
+// ROTAS — FOLLOW-UPS (FEATURE 7)
+// ============================================================
+
+const FOLLOWUPS_FILE = path.join(WORK_DIR, 'data/followups.json');
+
+function loadFollowups() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(FOLLOWUPS_FILE)) {
+      const data = fs.readFileSync(FOLLOWUPS_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao ler followups:', error.message);
+  }
+  return [];
+}
+
+function saveFollowups(data) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(FOLLOWUPS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`✅ Followups salvo: ${FOLLOWUPS_FILE}`);
+  } catch (error) {
+    console.error('❌ Erro ao salvar followups:', error.message);
+  }
+}
+
+/**
+ * POST /api/followups
+ * Registra um follow-up programado
+ * Body: { opportunityId, scheduledAt, message, channel }
+ */
+app.post('/api/followups', (req, res) => {
+  try {
+    const { opportunityId, scheduledAt, message, channel } = req.body;
+
+    if (!opportunityId || !scheduledAt || !message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Requerido: opportunityId, scheduledAt, message',
+      });
+    }
+
+    const followups = loadFollowups();
+    const newFollowup = {
+      id: `fu-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      opportunityId,
+      scheduledAt,
+      message,
+      channel: channel || 'email',
+      createdAt: new Date().toISOString(),
+      completed: false,
+    };
+
+    followups.push(newFollowup);
+    saveFollowups(followups);
+
+    console.log(`📅 Follow-up agendado para ${opportunityId}: ${scheduledAt}`);
+
+    res.status(201).json({
+      success: true,
+      followup: newFollowup,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/followups
+ * Retorna todos os follow-ups futuros ordenados por data
+ */
+app.get('/api/followups', (req, res) => {
+  try {
+    const followups = loadFollowups();
+
+    // Ordenar por data (próximos primeiro)
+    followups.sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+
+    res.json({
+      success: true,
+      followups,
+      count: followups.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/followups/due
+ * Retorna follow-ups cujo scheduledAt já passou (CEO precisa agir)
+ */
+app.get('/api/followups/due', (req, res) => {
+  try {
+    const followups = loadFollowups();
+    const now = new Date();
+
+    const dueFollowups = followups.filter(f => !f.completed && new Date(f.scheduledAt) <= now);
+
+    // Ordenar por data (mais antigos primeiro)
+    dueFollowups.sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+
+    res.json({
+      success: true,
+      followups: dueFollowups,
+      count: dueFollowups.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
 // ROTAS — UTILITÁRIOS
 // ============================================================
 
@@ -486,19 +1140,28 @@ app.get('/api/proposals/:id', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     app: 'Entidados AGE',
-    version: '1.0.0',
+    version: '2.0.0',
     mode: 'SURVIVAL',
-    message: '🚀 Backend rodando em modo Brain-Muscle orchestration',
+    message: '🚀 Backend rodando em modo Brain-Muscle orchestration com 7 features avançadas',
     endpoints: {
       'GET /api/health': 'Status das 5 barras vitais',
+      'GET /api/health/detailed': '[NEW] Status detalhado com uptime, memory, data staleness',
       'GET /api/status': 'Status resumido do sistema',
       'GET /api/radar': 'Todas as oportunidades',
       'GET /api/radar/hot': 'Apenas oportunidades HOT',
       'GET /api/radar/:id': 'Detalhes de uma oportunidade',
+      'GET /api/proposals': '[NEW] Lista TODAS as propostas (com tier, score, timestamp)',
       'GET /api/proposals/:id': 'Conteúdo de uma proposta (para clipboard)',
-      'POST /api/webhook/n8n': '🚀 [N8N] Receber nova oportunidade',
+      'POST /api/opportunities/:id/kanban': '[NEW] Mover oportunidade no CRM (atualiza receita se paid)',
+      'GET /api/analytics/pipeline': '[NEW] Analytics do funil: conversion, pipeline value, distribuição',
+      'POST /api/webhook/n8n': 'Receber nova oportunidade',
+      'POST /api/webhook/n8n/batch': '[NEW] Receber ARRAY de oportunidades em 1 request',
       'GET /api/webhook/n8n': 'Listar oportunidades recebidas via N8N',
       'GET /api/webhook/n8n/hot': 'Apenas oportunidades HOT do N8N',
+      'GET /api/agent-status': '[NEW] Lista todos os agentes disponíveis',
+      'POST /api/followups': '[NEW] Agendar follow-up para uma oportunidade',
+      'GET /api/followups': '[NEW] Listar todos os follow-ups futuros',
+      'GET /api/followups/due': '[NEW] Follow-ups vencidos (CEO precisa agir)',
       'GET /dashboard': 'Dashboard SPA (via express.static)',
     },
   });
