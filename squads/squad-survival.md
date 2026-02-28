@@ -15,6 +15,7 @@ description: squad de sobrevivência — Receita imediata via serviços B2B e fr
 | `@dev` | Entrega técnica rápida — automação, scraping, bots | `/dev` |
 | `@pm` | Gestão de projetos freelance — scoping, timeline, entrega | `/pm` |
 | `@architect` | Arquitetura de soluções para propostas complexas | `/architect` |
+| `@copywriter` | Propostas persuasivas, perfil, outreach — conversão máxima | `/copywriter` |
 
 ## Workflow Principal
 
@@ -23,9 +24,10 @@ description: squad de sobrevivência — Receita imediata via serviços B2B e fr
    - Filtrar por: IA, automação, dados, bots, scraping, n8n
    - Score por probabilidade de fechamento × valor
 
-2. **Proposta** (`@pm` + `@architect`):
-   - Gerar proposta personalizada com scope, timeline e preço
-   - Template de proposta otimizado para conversão
+2. **Proposta** (`@copywriter` + `@pm` + `@architect`):
+   - @copywriter gera proposta persuasiva seguindo AIDA (spec: `squads/agents/copywriter.md`)
+   - @pm valida scope, timeline e preço
+   - @architect fornece solução técnica para propostas complexas
    - **APROVAÇÃO DO OPERADOR OBRIGATÓRIA antes de envio**
 
 3. **Entrega** (`@dev`):
