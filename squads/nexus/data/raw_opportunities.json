@@ -1,179 +1,106 @@
 [
-  {
-    "id": "wkn_2103192957",
-    "platform": "Workana",
-    "title": "Automação Urgente de 5.600 Notas Fiscais Complementares de Icms via...",
-    "url": "https://www.workana.com/job/automacao-urgente-de-5-600-notas-fiscais-complementares-de-icms-via-api-tiny-erp?ref=projects_1",
-    "rewardRaw": "USD 250 - 500",
-    "rewardMin": 250,
-    "rewardMax": 500,
-    "skills": [
-      "API",
-      "Python",
-      "Scripts & Utilities",
-      "ERP"
-    ],
-    "full_description": "Preciso de um desenvolvedor com experiência em API do Tiny ERP (v2 ou v3) para realizar uma força-tarefa de emissão de notas fiscais. \nO cenário:\nNossa empresa (e-commerce com alto volume) foi desenquadrada do sublimite do Simples Nacional em SP. Emitimos cerca de 6.000 notas neste mês sem o destaque de ICMS e Difal. Já realizamos 400 notas manualmente, mas restam 5.600 notas que precisam de Notas Fiscais Complementares. \nO que o profissional precisará fazer: \nConsumo de Dados: Ler uma planilha Excel/CSV (que eu fornecerei) contendo as Chaves de Acesso das notas originais e os valores de base de cálculo e imposto (ICMS/Difal) já calculados por nós. \nIntegração via API: Criar um script para gerar automaticamente no Tiny as Notas Fiscais Complementares (referenciando a chave de acesso da nota de origem). \nGestão de Lote: O script deve respeitar o rate limit da API do Tiny e gerar um log de sucesso/erro para cada nota processada. \nDiferenciação: Garantir que as 400 notas já feitas manualmente não sejam duplicadas. \nRequisitos: \nExperiência comprovada com a API do Tiny. \nConhecimento em regras de NF-e (Notas Complementares). \nCapacidade de entrega rápida (precisamos resolver isso em poucos dias). \nDiferencial: Já ter realizado projetos de emissão em lote para empresas que saíram do Simples Nacional ou entraram no Sublimite.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:06.096Z"
-  },
-  {
-    "id": "wkn_923737441",
-    "platform": "Workana",
-    "title": "Criação de Clone Digital (Avatar Ia) do Ceo da Growthtec para vídeo...",
-    "url": "https://www.workana.com/job/criacao-de-clone-digital-avatar-ia-do-ceo-da-growthtec-para-videos-institucionais-e-comerciais?ref=projects_1",
-    "rewardRaw": "USD 250 - 500",
-    "rewardMin": 250,
-    "rewardMax": 500,
-    "skills": [
-      "Machine Learning",
-      "Python",
-      "Desenvolvimento de Games",
-      "Computer Graphics",
-      "Video 360"
-    ],
-    "full_description": "Buscamos profissional experiente em criação de avatar realista com ia (clone digital) para produzir vídeos recorrentes do ceo da growthtec (stefanno polidoro). O objetivo é criar um clone digital altamente realista para narrar conteúdos estratégicos, comerciais e institucionais da empresa. Não buscamos vídeos simples com ferramenta genérica. Buscamos qualidade profissional, naturalidade e padrão premium. A GrowthTec é uma consultoria estratégica de Soluções AI First. Atendemos C-levels e decisores que buscam eficiência operacional e ROI real através de: Discovery, Implementação, Sustentação, Evolução. Nossos conteúdos têm posicionamento executivo, sofisticado e estratégico. O que precisamos: 1. Criação de clone digital realista do Stefanno Polidoro: Avatar com aparência fiel, Voz semelhante (ou possibilidade de clonar voz), Expressões naturais, Sincronização labial precisa. 2. Template visual padrão GrowthTec: Fundo com logo da GrowthTec, Identidade visual alinhada, Ambiente corporativo moderno, Possibilidade de variações (estúdio / minimalista / executivo). 3. Produção recorrente de vídeos: Roteiros fornecidos por nós, Vídeos entre 1 e 3 minutos, Formato para LinkedIn, Instagram e eventos. Entregáveis: Versão inicial do clone digital aprovado, 3 vídeos piloto, Template visual padronizado, Estrutura para produção recorrente.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:06.572Z"
-  },
-  {
-    "id": "wkn_879983113",
-    "platform": "Workana",
-    "title": "Parceiro Desenvolvedor Web para Agência de Design - Implementação d...",
-    "url": "https://www.workana.com/job/parceiro-desenvolvedor-web-para-agencia-de-design-implementacao-de-sites?ref=projects_1",
-    "rewardRaw": "USD 50 - 100",
-    "rewardMin": 50,
-    "rewardMax": 100,
-    "skills": [
-      "Responsive Web Design",
-      "Web Design"
-    ],
-    "full_description": "Nossa agência de design recém-lançada busca um parceiro desenvolvedor web para colaboração contínua em projetos de criação de sites. A agência será responsável por todo o processo de atendimento ao cliente, coleta de briefing, criação de conteúdo e design completo dos layouts no Figma. O parceiro selecionado será encarregado do desenvolvimento técnico dos sites, garantindo a implementação de responsividade para diferentes dispositivos, a criação de animações e a publicação final dos projetos no ar. Buscamos um profissional com experiência comprovada em desenvolvimento front-end e back-end, capaz de transformar designs complexos em experiências web funcionais e otimizadas. Esta é uma oportunidade para estabelecer uma parceria de longo prazo.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:07.132Z"
-  },
-  {
-    "id": "wkn_919751634",
-    "platform": "Workana",
-    "title": "Desenvolvedor Php/Symfony para Integração Detran Rs com Sistema Dri...",
-    "url": "https://www.workana.com/job/desenvolvedor-php-symfony-para-integracao-detran-rs-com-sistema-drive-parts?ref=projects_1",
-    "rewardRaw": "USD 1.000 - 3.000",
-    "rewardMin": 1000,
-    "rewardMax": 3000,
-    "skills": [
-      "Symfony",
-      "MongoDB",
-      "Linux",
-      "API",
-      "Web Services",
-      "Git",
-      "PHP"
-    ],
-    "full_description": "Buscamos um desenvolvedor freelancer experiente para realizar a integração do sistema Drive Parts com o DETRAN do Rio Grande do Sul. O objetivo principal é automatizar consultas e o envio de dados obrigatórios para desmontes automotivos credenciados, garantindo conformidade e eficiência operacional. \nSobre o Sistema Drive Parts:\nSomos uma plataforma SaaS robusta, projetada especificamente para desmontes automotivos. Nossas funcionalidades incluem:\n- Gerenciamento de estoque de peças com compatibilidade veicular.\n- Publicação automática de peças em nosso site próprio, Mercado Livre e Mercado Drive.\n- Operação em ambiente multi-tenant.\n- Tecnologia baseada em PHP 8.2, Symfony 7.4 e MongoDB.\n- Infraestrutura rodando em Linux (VPS). \nEscopo do Projeto:\nO projeto envolve as seguintes etapas e responsabilidades:\n- Estudo aprofundado da documentação técnica fornecida pelo detran rs.\n- Implementação da integração via api rest ou soap, conforme as especificações do detran.\n- Tratamento de autenticação, que pode envolver o uso de tokens ou certificados digitais, se necessário.\n- Criação de um serviço desacoplado dentro do framework Symfony para gerenciar a integração.\n- Implementação robusta de tratamento de erros e sistema de logs para monitoramento.\n- Elaboração de documentação técnica completa da integração realizada. \nFuncionalidades Esperadas:\nO sistema integrado deverá ser capaz de:\n- Realizar consultas de veículos utilizando placa ou chassi.\n- Validar a situação cadastral dos veículos.\n- Enviar dados obrigatórios do desmonte ao DETRAN (se aplicável).\n- Registrar e logar todas as requisições e respostas da API. \nRequisitos Essenciais:\n- Experiência comprovada com PHP 8+ e framework Symfony.\n- Habilidade em integração com Apis rest e/ou soap.\n- Conhecimento e experiência com certificado digital é um diferencial.\n- Experiência prévia com APIs governamentais será valorizada.\n- Proficiência no uso de Git para controle de versão e adesão a boas práticas de código.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:07.570Z"
-  },
-  {
-    "id": "wkn_2022868882",
-    "platform": "Workana",
-    "title": "Analista para Desenvolvimento de Sistema Gerencial Financeiro e de ...",
-    "url": "https://www.workana.com/job/analista-para-desenvolvimento-de-sistema-gerencial-financeiro-e-de-custos-para-industria-de-granito?ref=projects_1",
-    "rewardRaw": "USD 250 - 500",
-    "rewardMin": 250,
-    "rewardMax": 500,
-    "skills": [
-      "Database",
-      "SQL",
-      "System Analysis",
-      "Modelagem de Dados",
-      "ERP",
-      "Python"
-    ],
-    "full_description": "Estamos buscando um profissional qualificado para nos auxiliar na criação e implementação de um sistema gerencial financeiro para nossa empresa. Nossa atuação é no setor de granito, desde a extração do bloco bruto. O objetivo principal é desenvolver uma ferramenta robusta para controle de custos, gestão financeira e análise de dados, que nos permita otimizar processos e tomar decisões estratégicas. O projeto inclui a estruturação de uma base de dados sólida como alicerce para o sistema. O profissional ideal terá experiência em análise de custos, modelagem de dados e desenvolvimento ou implementação de sistemas financeiros/ERP. Esperamos que o sistema possa gerenciar: Custos de extração e beneficiamento do granito. Controle de estoque de blocos brutos e produtos acabados. Fluxo de caixa e contas a pagar/receber. Geração de relatórios financeiros e de desempenho. Buscamos alguém com visão estratégica e capacidade de transformar dados em informações úteis para a gestão.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:07.995Z"
-  },
-  {
-    "id": "wkn_1184041777",
-    "platform": "Workana",
-    "title": "Configuração e Otimização de Loja Online Nuvemshop ou Shopify",
-    "url": "https://www.workana.com/job/configuracao-e-otimizacao-de-loja-online-nuvemshop-ou-shopify?ref=projects_1",
-    "rewardRaw": "USD 50 - 100",
-    "rewardMin": 50,
-    "rewardMax": 100,
-    "skills": [
-      "Shopify",
-      "HTML",
-      "CSS",
-      "JavaScript"
-    ],
-    "full_description": "Estamos buscando um freelancer experiente para configurar e otimizar nossa nova loja online. O projeto envolve a configuração completa da plataforma escolhida (Nuvemshop ou Shopify), incluindo: instalação e personalização de tema, carregamento inicial de produtos, configuração de métodos de pagamento, integração de opções de envio e otimização básica para garantir uma experiência de usuário fluida e funcionalidade completa. O objetivo é ter uma loja pronta para operar e vender online de forma eficiente.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:08.425Z"
-  },
-  {
-    "id": "wkn_1262043868",
-    "platform": "Workana",
-    "title": "Desenvolvimento de Website Profissional e Responsivo",
-    "url": "https://www.workana.com/job/desenvolvimento-de-website-profissional-e-responsivo-4?ref=projects_1",
-    "rewardRaw": "USD 50 - 100",
-    "rewardMin": 50,
-    "rewardMax": 100,
-    "skills": [
-      "HTML",
-      "CSS",
-      "JavaScript",
-      "PHP",
-      "WordPress",
-      "MySQL",
-      "Responsive Web Design",
-      "Wix"
-    ],
-    "full_description": "Estamos buscando desenvolvedores de site experientes para criar um website profissional e funcional. O objetivo principal é estabelecer uma forte presença online para nossa empresa/projeto, fornecendo informações claras e acessíveis aos nossos clientes e visitantes. O site deve ser totalmente responsivo, garantindo uma excelente experiência de usuário em dispositivos desktop, tablets e smartphones. Esperamos um design moderno, intuitivo e otimizado para SEO. As funcionalidades básicas incluem páginas de apresentação (Quem Somos, Serviços, Contato), um formulário de contato e integração com redes sociais. Detalhes adicionais sobre o escopo e funcionalidades específicas serão discutidos com os candidatos selecionados.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:08.873Z"
-  },
-  {
-    "id": "wkn_1947853922",
-    "platform": "Workana",
-    "title": "Desenvolvimento de Sistema Unificado de Gestão para Comunicação Vis...",
-    "url": "https://www.workana.com/job/desenvolvimento-de-sistema-unificado-de-gestao-para-comunicacao-visual-com-integracao-sistograf?ref=projects_1",
-    "rewardRaw": "USD 1.000 - 3.000",
-    "rewardMin": 1000,
-    "rewardMax": 3000,
-    "skills": [
-      "API",
-      "Database",
-      "HTML5",
-      "CSS3",
-      "JavaScript",
-      "PHP",
-      "MySQL",
-      "System Analysis",
-      "Modelagem de Dados"
-    ],
-    "full_description": "Estamos buscando um desenvolvedor para criar um Sistema Unificado de Gestão que elimine o retrabalho de digitação manual e otimize a gestão financeira e produtiva de nossa empresa de comunicação visual. O objetivo principal é automatizar o fluxo de dados desde a venda até a produção e finanças.1. Integração de Entrada (Crucial):O sistema deve integrar-se via API com nossa plataforma de vendas no Sistograf. Todos os pedidos realizados no site devem ser importados automaticamente para o sistema interno, incluindo dados completos do cliente, detalhes dos itens do pedido, valores e arquivos anexos.2. Módulos do Sistema Interno:PDV (Frente de Caixa): Uma interface simples e intuitiva para vendas de balcão, com funcionalidade de busca rápida de produtos e cálculo de m² integrado.Gestão de Produção (Kanban): Um painel visual que permita arrastar e soltar pedidos entre as diferentes etapas do processo produtivo: Aguardando Arquivo, Impressão, Acabamento e Pronto.Financeiro Integrado: Um módulo de fluxo de caixa que seja alimentado automaticamente pelas vendas realizadas tanto no site (Sistograf) quanto no balcão. Deve incluir também um módulo para gestão de Contas a Pagar (fornecedores).Relatórios (Dashboard): Um painel de controle com visualizações claras de métricas importantes como lucro líquido, ticket médio e previsão de caixa.3. Requisitos Técnicos:Automação de Dados: É fundamental que os dados sejam inseridos uma única vez e fluam de forma integrada por todos os módulos do sistema, eliminando a necessidade de redigitação.Interface do Usuário: A interface deve ser focada em usabilidade, sendo limpa e intuitiva, especialmente para os funcionários da área de produção.Tecnologia: Estamos abertos a propostas utilizando abordagens Low-Code (como Bubble.io com Make/Zapier para automação) ou desenvolvimento sob medida, desde que a integração com a plataforma Sistograf seja garantida.Para a sua proposta, gostaríamos de saber:Vocês já realizaram integrações via API com plataformas de e-commerce ou sistemas terceiros?Como funciona o suporte após a entrega do sistema?Qual o prazo estimado para a entrega de um MVP (versão mínima funcional)?",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:09.310Z"
-  },
-  {
-    "id": "wkn_581968296",
-    "platform": "Workana",
-    "title": "Desenvolvedor e Especialista Ux para Suporte e Melhorias em Loja Sh...",
-    "url": "https://www.workana.com/job/desenvolvedor-e-especialista-ux-para-suporte-e-melhorias-em-loja-shopify?ref=projects_1",
-    "rewardRaw": "USD 15 - 45 / hora",
-    "rewardMin": 15,
-    "rewardMax": 45,
-    "skills": [
-      "Shopify",
-      "Programação",
-      "JavaScript",
-      "HTML",
-      "CSS",
-      "Responsive Web Design"
-    ],
-    "full_description": "O cliente possui uma loja online na plataforma Shopify e busca um profissional qualificado para atuar como Desenvolvedor e Especialista em UX. O objetivo principal é fornecer suporte contínuo e implementar melhorias para otimizar a experiência do usuário e o desempenho geral do e-commerce. As responsabilidades incluirão: Desenvolvimento e implementação de funcionalidades personalizadas na loja Shopify. Ajustes e customizações no tema atual para atender às necessidades específicas. Integração de aplicativos e ferramentas de terceiros. Identificação e correção de bugs ou problemas técnicos. Análise e otimização da jornada do usuário (UX) para melhorar a navegação e a usabilidade. Implementação de melhorias de design e interface para aumentar as taxas de conversão. Garantir a responsividade e o bom funcionamento da loja em diferentes dispositivos. O profissional deve ter experiência comprovada com a plataforma Shopify, tanto em aspectos de desenvolvimento quanto em princípios de User Experience.",
-    "status": "raw",
-    "scraped_at": "2026-02-27T18:41:09.774Z"
-  }
+    {
+        "id": "99f_-2951395724155880113",
+        "platform": "99Freelas",
+        "title": "Contratação de desenvolvedor Odoo 19",
+        "url": "https://www.99freelas.com.br/project/contratacao-de-desenvolvedor-odoo-19-732534?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:02.152224"
+    },
+    {
+        "id": "99f_-6692898838618374851",
+        "platform": "99Freelas",
+        "title": "Consultor de vendas digital mobile",
+        "url": "https://www.99freelas.com.br/project/consultor-de-vendas-digital-mobile-732525?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:02.472379"
+    },
+    {
+        "id": "99f_-5672665750318136360",
+        "platform": "99Freelas",
+        "title": "Otimização de planilha financeira (Google Sheets)",
+        "url": "https://www.99freelas.com.br/project/otimizacao-de-planilha-financeira-google-sheets-732565?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:02.803850"
+    },
+    {
+        "id": "99f_1656047006977003936",
+        "platform": "99Freelas",
+        "title": "Criar convite de casamento (digital e impressão)",
+        "url": "https://www.99freelas.com.br/project/criar-convite-de-casamento-digital-e-impressao-732562?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:03.145180"
+    },
+    {
+        "id": "99f_-8432685811939475297",
+        "platform": "99Freelas",
+        "title": "Integração Wifeed com HubSpot (Node.js)",
+        "url": "https://www.99freelas.com.br/project/integracao-wifeed-com-hubspot-node-js-732558?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:03.492652"
+    },
+    {
+        "id": "99f_7244853838913459439",
+        "platform": "99Freelas",
+        "title": "Melhorias em fluxo n8n para correção de arquivos de atividades",
+        "url": "https://www.99freelas.com.br/project/melhorias-em-fluxo-n8n-para-correcao-de-arquivos-de-atividades-732554?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:03.786437"
+    },
+    {
+        "id": "99f_5027267452178282743",
+        "platform": "99Freelas",
+        "title": "Melhorias em chatbot n8n e integração com Copilot SG",
+        "url": "https://www.99freelas.com.br/project/melhorias-em-chatbot-n8n-e-integracao-com-copilot-sg-732550?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:04.120283"
+    },
+    {
+        "id": "99f_-743176562164447809",
+        "platform": "99Freelas",
+        "title": "Roteiros para canal do YouTube",
+        "url": "https://www.99freelas.com.br/project/roteiros-para-canal-do-youtube-732546?fs=t",
+        "rewardRaw": "N/A",
+        "rewardMin": 0,
+        "rewardMax": 0,
+        "full_description": "",
+        "skills": [],
+        "status": "raw",
+        "scraped_at": "2026-02-28T13:45:04.456178"
+    }
 ]

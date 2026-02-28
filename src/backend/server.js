@@ -26,10 +26,14 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const WORK_DIR = path.resolve(__dirname, '../..');
 const RADAR_FILE = path.join(WORK_DIR, 'squads/nexus/data/radar_opportunities.json');
+const PROPOSALS_DIR = path.join(WORK_DIR, 'proposals');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from dashboard directory (SPA served here)
+app.use(express.static(path.join(WORK_DIR, 'dashboard')));
 
 // Inicializar Supabase (opcional, se configurado)
 let supabase = null;
@@ -405,6 +409,73 @@ app.get('/api/status', (req, res) => {
 });
 
 // ============================================================
+// ROTAS — PROPOSALS & DASHBOARD
+// ============================================================
+
+/**
+ * GET /api/proposals/:id
+ * Returns the full content of a proposal markdown file for clipboard copying
+ */
+app.get('/api/proposals/:id', (req, res) => {
+  try {
+    const proposalId = req.params.id;
+
+    // Sanitize to prevent path traversal
+    if (proposalId.includes('..') || proposalId.includes('/')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid proposal ID'
+      });
+    }
+
+    // Try common naming patterns
+    const patterns = [
+      `PROPOSAL-${proposalId}.md`,
+      `PROPOSAL-${proposalId}-HOT.md`,
+      `${proposalId}.md`
+    ];
+
+    let content = null;
+    let foundFile = null;
+
+    for (const pattern of patterns) {
+      const filePath = path.join(PROPOSALS_DIR, pattern);
+      if (fs.existsSync(filePath)) {
+        content = fs.readFileSync(filePath, 'utf-8');
+        foundFile = pattern;
+        break;
+      }
+    }
+
+    if (!content) {
+      return res.status(404).json({
+        success: false,
+        error: `Proposal '${proposalId}' not found`
+      });
+    }
+
+    res.json({
+      success: true,
+      id: proposalId,
+      filename: foundFile,
+      content: content,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /dashboard
+ * Serves the premium dashboard SPA from dashboard/index.html
+ * (Handled by express.static middleware above)
+ */
+
+// ============================================================
 // ROTAS — UTILITÁRIOS
 // ============================================================
 
@@ -424,271 +495,13 @@ app.get('/', (req, res) => {
       'GET /api/radar': 'Todas as oportunidades',
       'GET /api/radar/hot': 'Apenas oportunidades HOT',
       'GET /api/radar/:id': 'Detalhes de uma oportunidade',
+      'GET /api/proposals/:id': 'Conteúdo de uma proposta (para clipboard)',
       'POST /api/webhook/n8n': '🚀 [N8N] Receber nova oportunidade',
       'GET /api/webhook/n8n': 'Listar oportunidades recebidas via N8N',
       'GET /api/webhook/n8n/hot': 'Apenas oportunidades HOT do N8N',
+      'GET /dashboard': 'Dashboard SPA (via express.static)',
     },
   });
-});
-
-/**
- * GET /dashboard-webhook
- * Dashboard com polling em tempo real para oportunidades do N8N
- */
-app.get('/dashboard-webhook', (req, res) => {
-  const dashboardPath = path.join(WORK_DIR, 'dashboard-webhook.html');
-  if (fs.existsSync(dashboardPath)) {
-    return res.sendFile(dashboardPath);
-  }
-  res.status(404).json({ error: 'Dashboard not found' });
-});
-
-/**
- * GET /dashboard
- * Dashboard HTML simples (tempo real será via WebSocket)
- */
-app.get('/dashboard', (req, res) => {
-  const health = getHealthStatus();
-  const projects = loadRadar();
-
-  const html = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entidados AGE — Dashboard</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
-      color: #fff;
-      padding: 20px;
-    }
-    .container { max-width: 1400px; margin: 0 auto; }
-    header { margin-bottom: 30px; }
-    h1 { font-size: 2.5em; margin-bottom: 5px; }
-    .subtitle { color: #888; font-size: 0.9em; }
-
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
-
-    .card {
-      background: linear-gradient(135deg, #1e1e3f 0%, #2d2d5f 100%);
-      border: 1px solid #3d3d7f;
-      border-radius: 12px;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f);
-    }
-
-    .card-title { font-size: 0.9em; color: #aaa; margin-bottom: 10px; text-transform: uppercase; }
-    .card-value { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
-    .card-unit { color: #888; font-size: 0.85em; }
-
-    .status-indicator {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    .status-critical { background: #ff6b6b; }
-    .status-warning { background: #ffd93d; }
-    .status-green { background: #6bcf7f; }
-
-    .progress-bar {
-      background: rgba(255,255,255,0.1);
-      height: 6px;
-      border-radius: 3px;
-      margin-top: 10px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f);
-      transition: width 0.3s ease;
-    }
-
-    .projects-section { margin-top: 40px; }
-    .projects-section h2 { margin-bottom: 20px; font-size: 1.5em; }
-
-    .project-list { display: grid; gap: 15px; }
-    .project-item {
-      background: rgba(255,255,255,0.05);
-      border-left: 4px solid #ffd93d;
-      padding: 15px;
-      border-radius: 6px;
-      transition: transform 0.2s ease;
-    }
-    .project-item:hover { transform: translateX(5px); }
-    .project-item.hot { border-left-color: #ff6b6b; }
-    .project-item.warm { border-left-color: #ffd93d; }
-    .project-item.cool { border-left-color: #6bcf7f; }
-
-    .project-title { font-weight: bold; margin-bottom: 5px; }
-    .project-meta { color: #aaa; font-size: 0.85em; }
-
-    .tier-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 0.75em;
-      font-weight: bold;
-      margin-left: 10px;
-    }
-    .tier-hot { background: #ff6b6b; }
-    .tier-warm { background: #ffd93d; color: #000; }
-    .tier-cool { background: #6bcf7f; }
-
-    .proposal-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 6px; border: 1px dashed #ffd93d; font-size: 0.9em; margin-top: 15px; color: #ddd; white-space: pre-wrap; display: none; }
-    .proposal-box.active { display: block; }
-    .btn { background: #ffd93d; color: #000; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85em; font-weight: bold; display: inline-block; cursor: pointer; border: none; margin-top: 10px; margin-right: 10px; transition: all 0.2s; }
-    .btn:hover { background: #e5c337; transform: translateY(-2px); }
-    .btn-outline { background: transparent; color: #ffd93d; border: 1px solid #ffd93d; }
-    .btn-outline:hover { background: rgba(255, 217, 61, 0.1); }
-    .action-bar { margin-top: 10px; }
-
-    .footer { color: #666; font-size: 0.85em; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .footer p { margin-bottom: 10px; }
-
-    @media (max-width: 768px) {
-      h1 { font-size: 1.8em; }
-      .grid { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>🧠 Entidados AGE</h1>
-      <p class="subtitle">Brain-Muscle Orchestration • Revenue Hunter Live</p>
-    </header>
-
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">💰 Caixa</div>
-        <div class="card-value">R$ 0</div>
-        <div class="card-unit">
-          <span class="status-indicator status-critical"></span>CRÍTICO
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📊 Receita 24h</div>
-        <div class="card-value">R$ 0</div>
-        <div class="card-unit">
-          <span class="status-indicator status-critical"></span>CRÍTICO
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🎯 Oportunidades HOT</div>
-        <div class="card-value">${health.barras.oportunidades.value}</div>
-        <div class="card-unit">
-          <span class="status-indicator status-${health.barras.oportunidades.status}"></span>
-          ${health.barras.oportunidades.status.toUpperCase()}
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${health.barras.oportunidades.percentage}%"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">⚙️ Produção</div>
-        <div class="card-value">${health.barras.producao.value}</div>
-        <div class="card-unit">
-          <span class="status-indicator status-warning"></span>EM ANDAMENTO
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${health.barras.producao.percentage}%"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">✅ Qualidade</div>
-        <div class="card-value">${health.barras.qualidade.value}</div>
-        <div class="card-unit">
-          <span class="status-indicator status-green"></span>VERDE
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${health.barras.qualidade.percentage}%"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="projects-section">
-      <h2>🔥 TOP OPPORTUNITIES (HOT)</h2>
-      <div class="project-list">
-        ${projects
-          .filter(p => p.tier === 'hot')
-          .slice(0, 5)
-          .map(p => `
-            <div class="project-item hot">
-              <div class="project-title">
-                ${p.title}
-                <span class="tier-badge tier-hot">HOT • ${p.score}%</span>
-              </div>
-              <div class="project-meta">
-                ID: ${p.id} • Esforço: ${p.effort_hours}h • Recompensa: ${p.rewardRaw || 'N/A'}
-              </div>
-              <div class="action-bar">
-                <a href="${p.url}" target="_blank" class="btn btn-outline">🔗 Abrir na Workana</a>
-                ${p.proposal_draft ? `<button class="btn" onclick="toggleProposal('${p.id}')">📝 Ver Proposta Pronta</button>` : ''}
-              </div>
-              ${p.proposal_draft ? `
-              <div id="prop-${p.id}" class="proposal-box">
-                <div style="margin-bottom: 10px; text-align: right;">
-                  <button class="btn btn-outline" style="margin:0; font-size:0.75em;" onclick="copyToClipboard('${p.id}')">📋 Copiar Texto</button>
-                </div><div id="text-${p.id}">${p.proposal_draft}</div>
-              </div>` : `<div style="margin-top: 10px; color: #888; font-size: 0.85em;"><i>⌛ Proposta em processamento...</i></div>`}
-            </div>
-          `).join('')}
-      </div>
-    </div>
-
-    <div class="footer">
-      <p>✨ Dashboard em tempo real • Dados atualizados: ${new Date().toLocaleString('pt-BR')}</p>
-      <p>💡 Para dados via API: curl http://localhost:${PORT}/api/health</p>
-    </div>
-  </div>
-
-  <script>
-    function toggleProposal(id) {
-      document.getElementById('prop-' + id).classList.toggle('active');
-    }
-    function copyToClipboard(id) {
-      const textNode = document.getElementById('text-' + id);
-      navigator.clipboard.writeText(textNode.innerText).then(() => {
-        alert('🎯 Proposta copiada! Cole na Workana e envie a proposta.');
-      }).catch(err => {
-        console.error('Falha ao copiar:', err);
-        alert('Erro ao copiar. Selecione o texto manualmente.');
-      });
-    }
-  </script>
-</body>
-</html>
-  `;
-
-  res.send(html);
 });
 
 // ============================================================
@@ -701,8 +514,8 @@ app.listen(PORT, () => {
 ║ 🚀 ENTIDADOS AGE — Backend Running                    ║
 ╠═══════════════════════════════════════════════════════╣
 ║ Server: http://localhost:${PORT}
-║ API: http://localhost:${PORT}/api/status
 ║ Dashboard: http://localhost:${PORT}/dashboard
+║ API: http://localhost:${PORT}/api/status
 ║ Mode: SURVIVAL (Brain-Muscle Orchestration)
 ╚═══════════════════════════════════════════════════════╝
   `);

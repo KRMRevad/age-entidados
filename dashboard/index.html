@@ -4,20 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENTIDADOS — Central de Comando EVAD</title>
-    <meta name="description"
-        content="Organismo auto-sustentável da DAO EVAD. Dashboard de sobrevivência, missões e métricas em tempo real.">
+    <title>ENTIDADOS AGE — Central de Comando Premium</title>
+    <meta name="description" content="Dashboard premium de Entidados AGE. Organismo auto-sustentável em modo SURVIVAL.">
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Particle Background -->
-    <canvas id="particles"></canvas>
-
     <!-- Header -->
     <header id="header">
         <div class="header-left">
@@ -31,7 +30,7 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="meta-date" id="metaDate"></div>
+            <div class="meta-date" id="metaDate">28 feb, 2026</div>
             <div class="meta-days">
                 <span class="meta-label">Dias restantes</span>
                 <span class="meta-value" id="daysLeft">310</span>
@@ -43,7 +42,9 @@
         </div>
     </header>
 
+    <!-- Main Content -->
     <main id="app">
+
         <!-- Section 1: Organism + Vital Bars -->
         <section class="section-organism">
             <div class="organism-container">
@@ -65,6 +66,7 @@
             </div>
 
             <div class="vital-bars">
+                <!-- Caixa -->
                 <div class="vital-bar" data-bar="caixa">
                     <div class="bar-header">
                         <span class="bar-icon">💰</span>
@@ -80,6 +82,7 @@
                     </div>
                 </div>
 
+                <!-- Combustível -->
                 <div class="vital-bar" data-bar="combustivel">
                     <div class="bar-header">
                         <span class="bar-icon">⛽</span>
@@ -95,6 +98,7 @@
                     </div>
                 </div>
 
+                <!-- Receita -->
                 <div class="vital-bar" data-bar="receita">
                     <div class="bar-header">
                         <span class="bar-icon">📊</span>
@@ -110,6 +114,7 @@
                     </div>
                 </div>
 
+                <!-- Velocidade -->
                 <div class="vital-bar" data-bar="velocidade">
                     <div class="bar-header">
                         <span class="bar-icon">🏃</span>
@@ -125,6 +130,7 @@
                     </div>
                 </div>
 
+                <!-- Conversão -->
                 <div class="vital-bar" data-bar="conversao">
                     <div class="bar-header">
                         <span class="bar-icon">🎯</span>
@@ -213,29 +219,7 @@
             </div>
         </section>
 
-        <!-- Section 2.2: Visual Repertoire (Authority Base) -->
-        <section class="section-repertoire">
-            <h2 class="section-title">📂 Repertório Visual Técnico (Vitrine)</h2>
-            <div class="repertoire-grid">
-                <div class="repertoire-card">
-                    <img src="file:///Users/kreligar3vad/.gemini/antigravity/brain/0c4e1af8-0f62-4b97-8e35-e6ddd021be5d/blueprint_support_agent_1772065959571.png" alt="Autonomous AI Customer Support Agent" class="repo-img">
-                    <h3 class="repo-title">Agente de Suporte Autônomo</h3>
-                    <p class="repo-desc">Fluxo NLP via WhatsApp > Vector DB > CRM Hubspot. Redução de SLA em 90%.</p>
-                </div>
-                <div class="repertoire-card">
-                    <img src="file:///Users/kreligar3vad/.gemini/antigravity/brain/0c4e1af8-0f62-4b97-8e35-e6ddd021be5d/blueprint_whatsapp_crm_1772066080445.png" alt="WhatsApp + CRM AI Integration Pipeline" class="repo-img">
-                    <h3 class="repo-title">Pipeline WhatsApp + CRM</h3>
-                    <p class="repo-desc">Integração n8n, OpenAI Agent e Salesforce. Automação de qualificação de leads.</p>
-                </div>
-                <div class="repertoire-card">
-                    <img src="file:///Users/kreligar3vad/.gemini/antigravity/brain/0c4e1af8-0f62-4b97-8e35-e6ddd021be5d/blueprint_data_scraper_1772066046976.png" alt="Multi-Platform AI Data Scraper Engine" class="repo-img">
-                    <h3 class="repo-title">Motor de Scraping Criptográfico</h3>
-                    <p class="repo-desc">Extração multiplataforma, nodes em nuvem e modelagem de dados (Lakehouse).</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 2.5: Opportunity Radar -->
+        <!-- Section 3: Opportunity Radar -->
         <section class="section-radar">
             <div class="radar-header">
                 <h2 class="section-title">📡 Radar de Oportunidades</h2>
@@ -276,7 +260,7 @@
             </div>
         </section>
 
-        <!-- Section 2.6: CRM Kanban -->
+        <!-- Section 4: CRM Kanban -->
         <section class="section-kanban" id="sectionKanban">
             <div class="kanban-header">
                 <h2 class="section-title">🗂️ CRM Kanban (Pipeline)</h2>
@@ -286,7 +270,6 @@
             </div>
 
             <div class="kanban-board" id="kanbanBoard">
-                <!-- Columns -->
                 <div class="kanban-column" data-status="lead">
                     <div class="kanban-col-header">
                         <h3>🧊 Lead</h3>
@@ -345,7 +328,7 @@
             </div>
         </section>
 
-        <!-- Section 3: Mission Log -->
+        <!-- Section 5: Missions Log -->
         <section class="section-missions">
             <div class="missions-header">
                 <h2 class="section-title">Log de Missões</h2>
@@ -361,7 +344,7 @@
             </div>
         </section>
 
-        <!-- Section 4: Rewards / Achievements -->
+        <!-- Section 6: Rewards / Achievements -->
         <section class="section-rewards">
             <h2 class="section-title">Conquistas & Prêmios</h2>
             <div class="rewards-grid" id="rewardsGrid">
@@ -369,7 +352,7 @@
             </div>
         </section>
 
-        <!-- Section 5: Financial Log -->
+        <!-- Section 7: Financial Log -->
         <section class="section-financials">
             <div class="financials-header">
                 <h2 class="section-title">Log Financeiro</h2>
@@ -410,7 +393,14 @@
                 </tbody>
             </table>
         </section>
+
     </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>ENTIDADOS v1.0 — EVAD DAO — Modo <span id="footerMode">SURVIVAL</span> 🔴</p>
+        <p class="footer-quote">"O dinheiro é o sangue. Se para de circular, o organismo morre."</p>
+    </footer>
 
     <!-- Modal: Add Mission -->
     <div class="modal" id="modalMission" style="display:none">
@@ -539,11 +529,7 @@
         </div>
     </div>
 
-    <footer>
-        <p>ENTIDADOS v1.0 — EVAD DAO — Modo <span id="footerMode">SURVIVAL</span> 🔴</p>
-        <p class="footer-quote">"O dinheiro é o sangue. Se para de circular, o organismo morre."</p>
-    </footer>
-
+    <!-- Scripts -->
     <script src="app.js"></script>
 </body>
 

@@ -32,8 +32,15 @@ O CEO possui múltiplos recursos de IA com capacidades diferentes. A regra de ou
 | Recurso | Capacidade | Usar Para | NUNCA Usar Para |
 |---|---|---|---|
 | **Claude Code (Squads)** | Raciocínio profundo, criatividade, estratégia | Copywriting, planejamento, arquitetura, propostas, análise | Tarefas repetitivas e cegas |
-| **Ollama / LLM Local (Alienware)** | Processamento rápido, sem custo | Motorizar bots (OpenClaw), classificação simples, cert farmer | Raciocínio complexo, copy persuasivo |
-| **N8N (Workflows)** | Automação de fluxos, scraping, triggers | Raspagem de vagas, webhooks, integrações | Lógica de negócio complexa |
+
+```markdown
+| **Ollama / LLM Local (Alienware)** | Motor para o OpenClaw ter vida | Execução de fluxos mapeados por Squads/Conselheiro | Raciocínio, tomada de decisão, copy |
+```
+
+```markdown
+| **N8N (Workflows)** | Auto-ativação 24/7, execução verticalizada e sem fuga de roteiro | Tarefas repetitivas constantes, efeito cascata, interação com o mundo externo | Raciocínio, decisões estratégicas, lógica complexa |
+```
+
 | **Scrapling / OpenClaw** | Navegação web autônoma | Scraping, automação de browser, formulários | Decisões estratégicas |
 
 ### O Erro Fatal que Cometi (Para Você Não Repetir)
@@ -176,4 +183,4 @@ Sempre que estiver em dúvida, pergunte-se:
 
 **Ciência. Intuição. Arte. EVAD.**
 
-*— Conselheiro-Chefe, Entidados AGE*
+— Conselheiro-Chefe, Entidados AGE
