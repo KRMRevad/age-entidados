@@ -4,42 +4,42 @@
    ======================================== */
 
 :root {
-  /* Primary Colors */
-  --bg-primary: #0a0a1a;
-  --bg-secondary: #141428;
-  --bg-tertiary: #1a1a2e;
+  /* Primary Colors - Deep Space True Dark */
+  --bg-primary: #030305;
+  --bg-secondary: #08080C;
+  --bg-tertiary: #0F0F16;
 
-  /* Glassmorphism Cards */
-  --glass-bg: rgba(20, 20, 40, 0.6);
-  --glass-border: rgba(124, 58, 237, 0.2);
-  --glass-blur: 12px;
+  /* Premium Glassmorphism Cards */
+  --glass-bg: rgba(10, 10, 16, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.04);
+  --glass-blur: 24px;
 
-  /* Accent Palette */
-  --primary-purple: #7c3aed;
-  --primary-purple-glow: rgba(124, 58, 237, 0.3);
-  --cyan-accent: #06b6d4;
-  --cyan-glow: rgba(6, 182, 212, 0.3);
-  --amber-hot: #f59e0b;
-  --amber-hot-glow: rgba(245, 158, 11, 0.3);
+  /* Accent Palette - Neon Sci-Fi */
+  --primary-purple: #b026ff;
+  --primary-purple-glow: rgba(176, 38, 255, 0.5);
+  --cyan-accent: #00f5ff;
+  --cyan-glow: rgba(0, 245, 255, 0.5);
+  --amber-hot: #ff2a5f;
+  --amber-hot-glow: rgba(255, 42, 95, 0.5);
 
-  /* Status Colors */
-  --status-critical: #ef4444;
-  --status-warning: #f97316;
-  --status-success: #10b981;
-  --status-info: #3b82f6;
+  /* Status Colors (Neon) */
+  --status-critical: #ff003c;
+  --status-warning: #ffaa00;
+  --status-success: #39ff14;
+  --status-info: #0088ff;
 
-  /* Text */
-  --text-primary: #f0f0f8;
-  --text-secondary: #b0b0c8;
-  --text-tertiary: #808099;
-  --text-muted: #5a5a6f;
+  /* Text - High Legibility Translucent */
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #334155;
 
   /* Spacing & Radius */
   --gap: 1.5rem;
   --gap-sm: 0.75rem;
   --gap-md: 1rem;
-  --radius-lg: 16px;
-  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
   --radius-sm: 8px;
 
   /* Fonts */
@@ -48,8 +48,8 @@
 
   /* Animations */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ========================================
@@ -72,12 +72,27 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 15% 50%, rgba(176, 38, 255, 0.08), transparent 25%),
+                    radial-gradient(circle at 85% 30%, rgba(0, 245, 255, 0.08), transparent 25%);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Scrollbar Styling */
@@ -130,14 +145,15 @@ header#header {
   align-items: center;
   padding: var(--gap) var(--gap);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(32px) saturate(150%);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.5), 0 10px 40px rgba(0, 0, 0, 0.8);
   border-radius: var(--radius-lg);
   margin-bottom: var(--gap);
   position: sticky;
   top: var(--gap);
   z-index: 100;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .header-left {
@@ -174,7 +190,8 @@ header#header {
   gap: var(--gap-sm);
   padding: 0.5rem 1rem;
   background: rgba(124, 58, 237, 0.1);
-  border: 1px solid var(--primary-purple);
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--primary-purple-glow), 0 0 20px var(--primary-purple-glow);
   border-radius: var(--radius-md);
   font-size: 0.75rem;
   font-weight: 600;
@@ -288,8 +305,9 @@ body.war-room-mode .section-kanban {
   gap: 1.5rem;
   padding: var(--gap);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-lg);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
@@ -329,7 +347,8 @@ body.war-room-mode .section-kanban {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--cyan-accent);
+  border: none;
+  box-shadow: inset 0 0 0 2px var(--cyan-accent), 0 0 30px var(--cyan-glow);
   box-shadow: 0 0 20px var(--primary-purple-glow);
 }
 
@@ -362,7 +381,8 @@ body.war-room-mode .section-kanban {
   position: absolute;
   width: 100%;
   height: 100%;
-  border: 2px solid var(--primary-purple);
+  border: none;
+  box-shadow: inset 0 0 0 2px var(--primary-purple), 0 0 30px var(--primary-purple-glow);
   border-radius: 50%;
   animation: pulse-ring 2s ease-out infinite;
 }
@@ -406,8 +426,9 @@ body.war-room-mode .section-kanban {
 .vital-bar {
   padding: var(--gap-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-md);
   transition: all var(--transition-smooth);
 }
@@ -532,7 +553,7 @@ body.war-room-mode .section-kanban {
 .organ-card {
   padding: var(--gap);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
   border: 2px solid transparent;
   border-radius: var(--radius-lg);
   transition: all var(--transition-smooth);
@@ -639,8 +660,9 @@ body.war-room-mode .section-kanban {
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   transition: all var(--transition-smooth);
 }
 
@@ -723,8 +745,9 @@ body.war-room-mode .section-kanban {
   margin-bottom: var(--gap-md);
   padding: var(--gap-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-md);
   flex-wrap: wrap;
   align-items: center;
@@ -750,7 +773,8 @@ body.war-room-mode .section-kanban {
 .filter-input {
   padding: 0.5rem 0.75rem;
   background: var(--bg-tertiary);
-  border: 1px solid var(--glass-border);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -830,8 +854,9 @@ body.war-room-mode .section-kanban {
   overflow-x: auto;
   border-radius: var(--radius-lg);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
 }
 
 .radar-table {
@@ -966,7 +991,8 @@ body.war-room-mode .section-kanban {
   font-size: 0.7rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--primary-purple);
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--primary-purple-glow), 0 0 20px var(--primary-purple-glow);
   background: transparent;
   color: var(--primary-purple);
   cursor: pointer;
@@ -1023,8 +1049,9 @@ body.war-room-mode .section-kanban {
   margin-top: var(--gap);
   padding: var(--gap);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-lg);
 }
 
@@ -1045,7 +1072,8 @@ body.war-room-mode .section-kanban {
 .pipeline-item {
   padding: var(--gap-md);
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.05));
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
@@ -1097,8 +1125,9 @@ body.war-room-mode .section-kanban {
 .kanban-column {
   min-width: 280px;
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all var(--transition-smooth);
@@ -1165,7 +1194,8 @@ body.war-room-mode .section-kanban {
 .k-card {
   padding: var(--gap-md);
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.05));
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-md);
   cursor: move;
   transition: all var(--transition-fast);
@@ -1298,8 +1328,9 @@ body.war-room-mode .section-kanban {
   align-items: center;
   padding: var(--gap-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
 }
@@ -1316,7 +1347,8 @@ body.war-room-mode .section-kanban {
 .mission-check {
   width: 32px;
   height: 32px;
-  border: 2px solid var(--primary-purple);
+  border: none;
+  box-shadow: inset 0 0 0 2px var(--primary-purple), 0 0 30px var(--primary-purple-glow);
   border-radius: 50%;
   background: transparent;
   color: var(--primary-purple);
@@ -1415,8 +1447,9 @@ body.war-room-mode .section-kanban {
 .reward-card {
   padding: var(--gap-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-lg);
   text-align: center;
   transition: all var(--transition-smooth);
@@ -1504,8 +1537,9 @@ body.war-room-mode .section-kanban {
 .fin-card {
   padding: var(--gap-md);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
@@ -1563,8 +1597,9 @@ body.war-room-mode .section-kanban {
   border-collapse: collapse;
   font-size: 0.85rem;
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -1626,7 +1661,8 @@ body.war-room-mode .section-kanban {
   max-width: 500px;
   width: 90%;
   background: var(--bg-secondary);
-  border: 1px solid var(--primary-purple);
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--primary-purple-glow), 0 0 20px var(--primary-purple-glow);
   border-radius: var(--radius-lg);
   padding: var(--gap);
   animation: slide-up var(--transition-smooth);
@@ -1697,7 +1733,8 @@ body.war-room-mode .section-kanban {
   width: 100%;
   padding: 0.75rem;
   background: var(--bg-tertiary);
-  border: 1px solid var(--glass-border);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.6);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -1743,8 +1780,9 @@ body.war-room-mode .section-kanban {
   right: var(--gap);
   padding: var(--gap-md) var(--gap);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--primary-purple);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--primary-purple-glow), 0 0 20px var(--primary-purple-glow);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
   font-size: 0.9rem;
@@ -1765,7 +1803,7 @@ footer {
   font-size: 0.85rem;
   border-top: 1px solid var(--glass-border);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%) brightness(1.1);
   margin-top: var(--gap);
 }
 
