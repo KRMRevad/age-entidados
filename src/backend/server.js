@@ -556,11 +556,35 @@ app.get('/api/proposals', (req, res) => {
 
 const CRM_FILE = path.join(WORK_DIR, 'data/crm-pipeline.json');
 const FINANCIAL_LOG_FILE = path.join(WORK_DIR, 'data/financial-log.json');
+const HUMAN_TASKS_FILE = path.join(WORK_DIR, 'data/human_tasks.json');
 
 function ensureDataDir() {
   const dataDir = path.dirname(CRM_FILE);
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
+  }
+}
+
+function loadHumanTasks() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(HUMAN_TASKS_FILE)) {
+      const data = fs.readFileSync(HUMAN_TASKS_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao ler human tasks:', error.message);
+  }
+  return [];
+}
+
+function saveHumanTasks(data) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(HUMAN_TASKS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    console.log(`✅ Human tasks salvo: ${HUMAN_TASKS_FILE}`);
+  } catch (error) {
+    console.error('❌ Erro ao salvar human tasks:', error.message);
   }
 }
 
@@ -770,6 +794,73 @@ app.get('/api/analytics/pipeline', (req, res) => {
 });
 
 // ============================================================
+// ROTAS — HUMAN TASKS (PENDÊNCIAS DO CEO)
+// ============================================================
+
+/**
+ * GET /api/human-tasks
+ * Retorna todas as tarefas pendentes para o humano
+ */
+app.get('/api/human-tasks', (req, res) => {
+  try {
+    const tasks = loadHumanTasks();
+    const pending = tasks.filter(t => t.status === 'pending');
+
+    // Ordena por urgência (critical > high > medium > low) e data
+    const urgencyWeight = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
+    pending.sort((a, b) => {
+      const weightDiff = (urgencyWeight[b.urgency] || 0) - (urgencyWeight[a.urgency] || 0);
+      if (weightDiff !== 0) return weightDiff;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    res.json({
+      success: true,
+      tasks: pending,
+      count: pending.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/human-tasks/:id/resolve
+ * Marca uma tarefa humana como resolvida
+ */
+app.post('/api/human-tasks/:id/resolve', (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const tasks = loadHumanTasks();
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Task not found' });
+    }
+
+    tasks[taskIndex].status = 'resolved';
+    tasks[taskIndex].resolvedAt = new Date().toISOString();
+
+    saveHumanTasks(tasks);
+
+    res.json({
+      success: true,
+      message: 'Task resolved successfully',
+      task: tasks[taskIndex]
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================================
 // ROTAS — WEBHOOK BATCH (FEATURE 4)
 // ============================================================
 
@@ -972,7 +1063,7 @@ app.get('/api/agent-status', (req, res) => {
         // Extrair nome e role das primeiras linhas
         const nameMatch = content.match(/^#\s+(.+?)$/m);
         const roleMatch = content.match(/\*\*role\*\*:\s*(.+?)$/im) ||
-                         content.match(/role[:\s]+([^\n]+)/i);
+          content.match(/role[:\s]+([^\n]+)/i);
 
         const name = nameMatch ? nameMatch[1] : filename.replace('.md', '');
         const role = roleMatch ? roleMatch[1].trim() : 'Unknown';

@@ -1,0 +1,24 @@
+[
+    {
+        "id": "ht-001-demo",
+        "type": "Manual Action",
+        "title": "Aprovar Deploy de Correção de Preços n8n",
+        "description": "O Squad 2 identificou e corrigiu o bug de preços retornando 0$ do n8n. O PR #12 já passou nos testes do QA Kael. Falta humano clicar em Merge para Produção.",
+        "actionText": "VER PR NO GITHUB",
+        "actionUrl": "https://github.com/",
+        "status": "pending",
+        "createdAt": "2026-03-02T12:00:00.000Z",
+        "urgency": "high"
+    },
+    {
+        "id": "ht-002-demo",
+        "type": "Communication",
+        "title": "Enviar Proposta DETRAN RS",
+        "description": "A proposta para a vaga wkn_919751634 (USD 1-3k) foi gerada e está aguardando você copiar e colar na plataforma do Workana. O budget do cliente é alto, enviar rápido aumenta a chance de conversão em 40%.",
+        "actionText": "ABRIR PROPOSTA",
+        "actionUrl": "/api/proposals/wkn_919751634",
+        "status": "pending",
+        "createdAt": "2026-03-02T12:05:00.000Z",
+        "urgency": "critical"
+    }
+]
