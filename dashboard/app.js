@@ -229,6 +229,7 @@ let state = loadState();
 function render() {
     renderDate();
     renderVitalBars();
+    renderHumanTasks();
     renderRadar();
     renderKanban();
     renderMissions('active');
@@ -236,6 +237,99 @@ function render() {
     renderFinancials();
     updateMode();
     updateOrganism();
+}
+
+// ========================
+// Human Tasks (Pendências)
+// ========================
+
+window.humanTasksData = [];
+
+async function fetchHumanTasks() {
+    try {
+        const res = await fetch('http://localhost:3000/api/human-tasks');
+        const data = await res.json();
+        if (data.success) {
+            window.humanTasksData = data.tasks;
+            renderHumanTasksUI();
+
+            // Notification or distinct sound could be added here if new tasks arrive
+            const countEl = document.getElementById('humanTasksCount');
+            if (countEl) countEl.textContent = `${window.humanTasksData.length} Ações Requeridas`;
+
+            // Hide section if no tasks, show if tasks exist
+            const section = document.getElementById('sectionHumanTasks');
+            if (section) {
+                if (window.humanTasksData.length > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Failed to fetch human tasks:', e);
+    }
+}
+
+function renderHumanTasks() {
+    fetchHumanTasks();
+}
+
+function renderHumanTasksUI() {
+    const container = document.getElementById('humanTasksList');
+    if (!container) return;
+
+    if (window.humanTasksData.length === 0) {
+        container.innerHTML = `<div style="padding: 20px; color: var(--text-tertiary); font-style: italic;">Nenhuma pendência humana no momento. Você pode voltar a respirar.</div>`;
+        return;
+    }
+
+    container.innerHTML = window.humanTasksData.map(task => {
+        const timeStr = new Date(task.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const isUrgent = task.urgency === 'critical' || task.urgency === 'high';
+        const urgencyClass = isUrgent ? '' : `urgency-${task.urgency}`;
+
+        let actionsHtml = '';
+        if (task.actionUrl) {
+            // Se tiver URL, botão redireciona
+            actionsHtml += `<a href="${task.actionUrl}" target="_blank" class="btn-action-task">${task.actionText || 'Verificar'}</a>`;
+        }
+        actionsHtml += `<button class="btn-resolve-task" onclick="resolveHumanTask('${task.id}')">MARCAR RESOLVIDO</button>`;
+
+        return `
+            <div class="human-task-card ${urgencyClass}">
+                <div class="human-task-meta">
+                    <span class="human-task-type">${task.type}</span>
+                    <span class="human-task-time">${timeStr}</span>
+                </div>
+                <div class="human-task-title">${task.title}</div>
+                <div class="human-task-desc">${task.description}</div>
+                <div class="human-task-actions">
+                    ${actionsHtml}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function resolveHumanTask(id) {
+    try {
+        const res = await fetch(`http://localhost:3000/api/human-tasks/${id}/resolve`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('✅ Pendência Humana resolvida!');
+            // Re-fetch to update UI
+            fetchHumanTasks();
+        } else {
+            showToast('❌ Erro ao resolver pendência.', 'error');
+        }
+    } catch (e) {
+        console.error('Failed to resolve task:', e);
+        showToast('❌ Erro de conexão.', 'error');
+    }
 }
 
 // ========================
@@ -877,6 +971,7 @@ function calcScore(opp) {
 
 function calcRoiPerHour(opp) {
     const avgReward = (opp.rewardMin + opp.rewardMax) / 2;
+    if (avgReward === 0 || !opp.effortHours) return '?';
     return (avgReward / opp.effortHours).toFixed(0);
 }
 
@@ -978,9 +1073,9 @@ function renderRadar() {
                     <div class="radar-skills">${opp.skills || ''}</div>
                     ${opp.aiProposal ? `<details style="font-size:0.8em; margin-top:5px; color:#a3e635;"><summary style="cursor:pointer">Mostrar Proposal Draft da IA</summary><p style="padding:10px; background:#111; border-left:2px solid #a3e635; margin-top:5px; white-space:pre-wrap;">${opp.aiProposal}</p></details>` : ''}
                 </td>
-                <td class="radar-reward">$${opp.rewardMin}–${opp.rewardMax}</td>
+                <td class="radar-reward">${(opp.rewardMin === 0 && opp.rewardMax === 0) ? (opp.rewardRaw && opp.rewardRaw !== 'N/A' ? opp.rewardRaw : 'A Combinar') : (opp.rewardMin === opp.rewardMax ? `$${opp.rewardMin}` : `$${opp.rewardMin}–${opp.rewardMax}`)}</td>
                 <td class="radar-effort">${opp.effortHours}h</td>
-                <td class="radar-roi">$${roi}/h</td>
+                <td class="radar-roi">${roi === '?' ? '?' : `$${roi}/h`}</td>
                 <td class="radar-tech">
                     <div style="font-size:0.85em;color:#facc15;">$${(opp.aiCost || 0).toFixed(2)} API</div>
                     <div style="font-size:0.7em;color:#aaa;max-width:100px;white-space:normal;">${(opp.aiLLMs || []).join(', ')}</div>
