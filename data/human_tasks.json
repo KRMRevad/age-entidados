@@ -1,24 +1,33 @@
 [
-    {
-        "id": "ht-001-demo",
-        "type": "Manual Action",
-        "title": "Aprovar Deploy de Correção de Preços n8n",
-        "description": "O Squad 2 identificou e corrigiu o bug de preços retornando 0$ do n8n. O PR #12 já passou nos testes do QA Kael. Falta humano clicar em Merge para Produção.",
-        "actionText": "VER PR NO GITHUB",
-        "actionUrl": "https://github.com/",
-        "status": "pending",
-        "createdAt": "2026-03-02T12:00:00.000Z",
-        "urgency": "high"
-    },
-    {
-        "id": "ht-002-demo",
-        "type": "Communication",
-        "title": "Enviar Proposta DETRAN RS",
-        "description": "A proposta para a vaga wkn_919751634 (USD 1-3k) foi gerada e está aguardando você copiar e colar na plataforma do Workana. O budget do cliente é alto, enviar rápido aumenta a chance de conversão em 40%.",
-        "actionText": "ABRIR PROPOSTA",
-        "actionUrl": "/api/proposals/wkn_919751634",
-        "status": "pending",
-        "createdAt": "2026-03-02T12:05:00.000Z",
-        "urgency": "critical"
-    }
+  {
+    "id": "ht-001-demo",
+    "type": "Manual Action",
+    "title": "Aprovar Deploy de Correção de Preços n8n",
+    "description": "O Squad 2 identificou e corrigiu o bug de preços retornando 0$ do n8n. O PR #12 já passou nos testes do QA Kael. Falta humano clicar em Merge para Produção.",
+    "actionText": "VER PR NO GITHUB",
+    "actionUrl": "https://github.com/",
+    "status": "pending",
+    "createdAt": "2026-03-02T12:00:00.000Z",
+    "urgency": "high"
+  },
+  {
+    "id": "ht-002-demo",
+    "type": "Communication",
+    "title": "Aprovar 5 Propostas (Fiverr/Upwork)",
+    "description": "O Squad de Revenue gerou 5 propostas altíssima conversão para leads no Fiverr e Upwork. Copie os drafts preparados e envie nas plataformas para manter o volume de prospecção diário no máximo.",
+    "actionText": "VER PROPOSTAS",
+    "actionUrl": "/api/proposals/batch/001",
+    "status": "pending",
+    "createdAt": "2026-03-02T12:05:00.000Z",
+    "urgency": "critical"
+  },
+  {
+    "id": "ht_1772502416573",
+    "status": "pending",
+    "createdAt": "2026-03-03T01:46:56.573Z",
+    "title": "AÇÃO REQUERIDA: Atualizar Imagem da Marca (fiverr)",
+    "description": "CRÍTICA [UX/Analyst]: O Gig 'n8n-automation-expert' no FIVERR está com baixa conversão (100+ impressões e < 5 cliques). \n      SUGESTÃO DE OURO: A thumbnail não está chamando atenção e a copy não transmite autoridade para Ticket Alto. \n      AÇÃO: Atualize a capa imediatamente aplicando o design system neon/cyberpunk da AGE e reescreva o título focando no RESULTADO de faturamento.",
+    "priority": "critical",
+    "type": "deploy"
+  }
 ]

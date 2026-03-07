@@ -229,6 +229,7 @@ let state = loadState();
 function render() {
     renderDate();
     renderVitalBars();
+    renderSquads();
     renderHumanTasks();
     renderRadar();
     renderKanban();
@@ -237,6 +238,94 @@ function render() {
     renderFinancials();
     updateMode();
     updateOrganism();
+}
+
+// ========================
+// Squad Control Center
+// ========================
+
+window.squadsData = [];
+
+async function fetchSquads() {
+    try {
+        const res = await fetch('http://localhost:3000/api/squads');
+        const data = await res.json();
+        if (data.success) {
+            window.squadsData = data.squads;
+            renderSquadsUI();
+        }
+    } catch (e) {
+        console.error('Failed to fetch squads:', e);
+    }
+}
+
+function renderSquads() {
+    fetchSquads();
+}
+
+function renderSquadsUI() {
+    const container = document.getElementById('squadsGrid');
+    const statusText = document.getElementById('squadsStatusText');
+    if (!container) return;
+
+    const activeCount = window.squadsData.filter(s => s.status === 'active').length;
+    if (statusText) {
+        statusText.textContent = `${activeCount} Ativo${activeCount !== 1 ? 's' : ''}`;
+        if (activeCount > 0) {
+            statusText.style.color = 'var(--status-critical)';
+            statusText.style.borderColor = 'var(--status-critical)';
+            statusText.style.background = 'rgba(239, 68, 68, 0.1)';
+            statusText.style.animation = 'pulseValue 1.5s infinite';
+        } else {
+            statusText.style.color = 'var(--cyan-accent)';
+            statusText.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+            statusText.style.background = 'rgba(6, 182, 212, 0.1)';
+            statusText.style.animation = 'none';
+        }
+    }
+
+    const icons = {
+        'revenue': '💰',
+        'product': '⚙️',
+        'ux': '✨'
+    };
+
+    container.innerHTML = window.squadsData.map(squad => {
+        const isActive = squad.status === 'active';
+        const icon = icons[squad.id] || '🤖';
+        return `
+            <div class="squad-card ${isActive ? 'active' : ''}">
+                <div class="squad-info">
+                    <div class="squad-name">
+                        <span class="squad-icon">${icon}</span>
+                        ${squad.name}
+                    </div>
+                    <span class="squad-tag">ID: ${squad.id} | Status: ${isActive ? 'ONLINE' : 'STANDBY'}</span>
+                </div>
+                <button class="btn-toggle-squad" onclick="toggleSquad('${squad.id}')">
+                    ${isActive ? 'DESATIVAR' : 'ATIVAR SQUAD'}
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+async function toggleSquad(id) {
+    try {
+        const res = await fetch(`http://localhost:3000/api/squads/${id}/toggle`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message, data.squad.status === 'active' ? 'warning' : 'info');
+            fetchSquads(); // Re-fetch to update UI
+        } else {
+            showToast('❌ Erro ao alternar squad.', 'error');
+        }
+    } catch (e) {
+        console.error('Failed to toggle squad:', e);
+        showToast('❌ Erro de conexão.', 'error');
+    }
 }
 
 // ========================
@@ -603,7 +692,12 @@ async function pollAllSources() {
 // Start polling on page load
 document.addEventListener('DOMContentLoaded', () => {
     pollAllSources(); // Initial fetch
-    pollInterval = setInterval(pollAllSources, 5000); // Poll every 5s
+    // Slow down interval and only poll if tab is visible
+    pollInterval = setInterval(() => {
+        if (!document.hidden) {
+            pollAllSources();
+        }
+    }, 15000); // Poll every 15s instead of 5s
 });
 
 // ========================
@@ -1071,6 +1165,23 @@ function renderRadar() {
                 <td>
                     <div class="radar-title">${opp.title}</div>
                     <div class="radar-skills">${opp.skills || ''}</div>
+                    
+                    <!-- CALCULADOR DE OFERTA -->
+                    <div class="radar-calculator" style="margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border-left: 2px solid var(--expansion-blue); display: flex; gap: 10px; align-items: center; font-size: 0.85em;">
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="color: var(--text-secondary); margin-bottom: 2px;">Sua Oferta (R$)</label>
+                            <input type="number" min="10" value="50" step="5" style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 4px; border-radius: 3px; width: 80px;" oninput="updatePricing('${opp.id}', this.value, '${opp.platform}')" id="offer_${opp.id}">
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="color: var(--status-warning); margin-bottom: 2px;">Oferta Final (+20%)</label>
+                            <input type="text" readonly style="background: transparent; border: none; color: var(--status-warning); font-weight: bold; width: 90px;" id="final_${opp.id}" value="R$ 62,50">
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="color: var(--text-secondary); margin-bottom: 2px;">Dias</label>
+                            <input type="number" min="1" value="1" style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 4px; border-radius: 3px; width: 50px;">
+                        </div>
+                    </div>
+
                     ${opp.aiProposal ? `<details style="font-size:0.8em; margin-top:5px; color:#a3e635;"><summary style="cursor:pointer">Mostrar Proposal Draft da IA</summary><p style="padding:10px; background:#111; border-left:2px solid #a3e635; margin-top:5px; white-space:pre-wrap;">${opp.aiProposal}</p></details>` : ''}
                 </td>
                 <td class="radar-reward">${(opp.rewardMin === 0 && opp.rewardMax === 0) ? (opp.rewardRaw && opp.rewardRaw !== 'N/A' ? opp.rewardRaw : 'A Combinar') : (opp.rewardMin === opp.rewardMax ? `$${opp.rewardMin}` : `$${opp.rewardMin}–${opp.rewardMax}`)}</td>
@@ -1364,7 +1475,10 @@ function initParticles() {
         }
     }
 
-    setInterval(draw, 50);
+    // Animations cause heavy CPU usage on Chrome. Using requestAnimationFrame is better, but setInterval with 100ms is fine if tab is visible.
+    setInterval(() => {
+        if (!document.hidden) draw();
+    }, 100);
 }
 
 // ========================
@@ -1541,8 +1655,93 @@ function initEntryAnimations() {
 }
 
 // ========================
+// Real-time Sync & Calculator (FEATURE)
+// ========================
+
+function updatePricing(id, baseValue, platform) {
+    const val = parseFloat(baseValue);
+    if (isNaN(val) || val <= 0) return;
+
+    // Default 20% platform fee: client pays Base / 0.8
+    // If it's pure upwork it might be 10%, but 20% is safe for most
+    let feeMultiplier = 0.8;
+    if (platform === 'upwork') feeMultiplier = 0.9;
+
+    const finalValue = val / feeMultiplier;
+    const finalEl = document.getElementById(`final_${id}`);
+    if (finalEl) {
+        finalEl.value = `R$ ${finalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+}
+
+async function syncRadar() {
+    const btn = document.getElementById('btnSyncRadar');
+    if (btn) {
+        btn.innerHTML = '🔄 SINCRONIZANDO (10s)...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+    }
+
+    try {
+        showToast('Iniciando sincronização com scrapers em tempo real...', 'warning', 4000);
+
+        const res = await fetch('http://localhost:3000/api/radar/sync', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast('✅ Radar atualizado com dados novos!', 'success');
+            // Force reload of dashboard data
+            await pollAllSources();
+        } else {
+            showToast('❌ Erro na sincronização: ' + data.error, 'error');
+        }
+    } catch (e) {
+        console.error('Error syncing:', e);
+        showToast('❌ Falha ao conectar com o backend.', 'error');
+    } finally {
+        if (btn) {
+            btn.innerHTML = '🔄 SYNC LOCAL';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    }
+}
+
+async function triggerN8NWorkflow() {
+    const btn = document.getElementById('btnTriggerN8N');
+    const originalText = btn ? btn.innerHTML : '⚡ ACIONAR VIA N8N';
+
+    if (btn) {
+        btn.innerHTML = '⚡ ACIONANDO...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+    }
+
+    try {
+        const res = await fetch('http://localhost:3000/api/n8n/trigger', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast('✅ Sinal enviado ao N8N com sucesso!', 'success');
+        } else {
+            showToast('❌ Erro no N8N: ' + (data.error || 'Falha Desconhecida'), 'error');
+        }
+    } catch (e) {
+        console.error('Error triggering N8N:', e);
+        showToast('❌ Não foi possível acionar o Workflow no N8N.', 'error');
+    } finally {
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    }
+}
+
+// ========================
 // Init
 // ========================
+
 
 document.addEventListener('DOMContentLoaded', () => {
     render();

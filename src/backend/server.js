@@ -15,6 +15,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const { exec } = require('child_process');
 require('dotenv').config();
 
 // ============================================================
@@ -146,6 +147,65 @@ app.get('/api/radar', (req, res) => {
       stats,
       projects,
       timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================
+// N8N WATCHDOG
+// ============================================================
+async function checkN8NConnection() {
+  try {
+    const N8N_URL = 'http://127.0.0.1:5678/api/v1/workflows';
+    const N8N_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkODI0YzdjMS1kNmNlLTQ3OTYtOTA4Yi00MDkwNGNlODVlMjYiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzcxMzUxNzQ1LCJleHAiOjE3NzM4OTI4MDB9.2Y50JkI8CaMb6Eea1BVXb2qZOxJEN7IbF2fAwQk2Z8M';
+
+    const response = await fetch(N8N_URL, {
+      headers: { 'X-N8N-API-KEY': N8N_KEY }
+    });
+
+    if (response.ok) {
+      console.log('🔗 [Watchdog N8N] Conectado e Monitorando');
+    } else {
+      console.warn('⚠️ [Watchdog N8N] N8N acessível mas respondeu com erro:', response.status);
+    }
+  } catch (err) {
+    console.error('❌ [Watchdog N8N] Falha de conexão. O N8N local ou Docker não está respondendo.');
+  }
+}
+
+// Verifica a cada 15 minutos (900000 ms)
+setInterval(checkN8NConnection, 900000);
+setTimeout(checkN8NConnection, 3000); // Check inicial logo na subida do backend
+
+
+/**
+ * POST /api/radar/sync
+ * Força atualização das oportunidades em tempo real via script backend
+ */
+app.post('/api/radar/sync', (req, res) => {
+  try {
+    const mergeScript = path.join(WORK_DIR, 'scripts/merge_99freelas.js');
+    exec(`node "${mergeScript}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Erro no sync do radar:', error);
+        return res.status(500).json({ success: false, error: 'Falha ao sincronizar radar ao vivo.' });
+      }
+
+      const projects = loadRadar();
+      const stats = getRadarStats(projects);
+
+      res.json({
+        success: true,
+        message: 'Radar atualizado com sucesso em tempo real.',
+        stats,
+        projects,
+        timestamp: new Date().toISOString()
+      });
     });
   } catch (error) {
     res.status(500).json({
@@ -1221,6 +1281,238 @@ app.get('/api/followups/due', (req, res) => {
 });
 
 // ============================================================
+// ROTAS — SQUAD CONTROL CENTER
+// ============================================================
+
+const SQUAD_STATUS_FILE = path.join(WORK_DIR, 'data/squad_status.json');
+
+function loadSquadStatus() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(SQUAD_STATUS_FILE)) {
+      const data = fs.readFileSync(SQUAD_STATUS_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao ler squad status:', error.message);
+  }
+  return [
+    { id: 'revenue', name: 'Revenue Farming', status: 'inactive' },
+    { id: 'product', name: 'Product Engineering', status: 'inactive' },
+    { id: 'ux', name: 'UX & Encantamento', status: 'inactive' }
+  ];
+}
+
+function saveSquadStatus(data) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(SQUAD_STATUS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('❌ Erro ao salvar squad status:', error.message);
+  }
+}
+
+/**
+ * GET /api/squads
+ * Retorna todos os squads e seus status
+ */
+app.get('/api/squads', (req, res) => {
+  try {
+    const squads = loadSquadStatus();
+    res.json({
+      success: true,
+      squads,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/squads/:id/toggle
+ * Ativa ou Desativa um squad (invocando script bash no macOS)
+ */
+app.post('/api/squads/:id/toggle', (req, res) => {
+  try {
+    const squadId = req.params.id;
+    const squads = loadSquadStatus();
+    const squadIndex = squads.findIndex(s => s.id === squadId);
+
+    if (squadIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Squad não encontrado.' });
+    }
+
+    const currentStatus = squads[squadIndex].status;
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+    // Atualiza status local
+    squads[squadIndex].status = newStatus;
+    saveSquadStatus(squads);
+
+    if (newStatus === 'active') {
+      const scriptPath = path.join(WORK_DIR, 'scripts/launch-squad.sh');
+      exec(`${scriptPath} ${squadId}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Erro ao rodar script do squad ${squadId}:`, error);
+        } else {
+          console.log(`Squad ${squadId} ativado: ${stdout}`);
+        }
+      });
+      return res.json({
+        success: true,
+        message: `Squad ${squadId} acionado! Os terminais estão se abrindo.`,
+        squad: squads[squadIndex]
+      });
+    } else {
+      // Inativação é apenas visual no painel por enquanto (CEO deve fechar a aba manualmente ou via workflow futuro).
+      return res.json({
+        success: true,
+        message: `Status do Squad ${squadId} definido como inativo (feche os terminais se não estiverem processando).`,
+        squad: squads[squadIndex]
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================
+// ROTAS — N8N BRAND MONITORING (FEATURE)
+// ============================================================
+
+/**
+ * POST /api/webhook/brand-monitor
+ * Recebe payload do N8N: Oportunidades do Radar OU Métricas da Marca
+ */
+app.post('/api/webhook/brand-monitor', async (req, res) => {
+  try {
+    const payload = req.body;
+
+    // Detect if this is a Radar Opportunity payload
+    if (payload.title && (payload.url || payload.id)) {
+      console.log(`📡 [N8N RADAR] Oportunidade recebida: ${payload.title.substring(0, 30)}...`);
+
+      let opportunities = loadWebhookData();
+
+      const newOpportunity = {
+        id: payload.id || `n8n-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: payload.posted || new Date().toISOString(),
+        platform: payload.platform || 'workana',
+        title: payload.title,
+        url: payload.url,
+        reward: payload.rewardMax || payload.rewardMin || 'N/A',
+        effort_hours: payload.effortHours || 0,
+        tier: payload.tier || 'cool',
+        score: payload.score || 50,
+        description: payload.skills || '',
+        status: 'novo',
+      };
+
+      opportunities.unshift(newOpportunity);
+
+      if (opportunities.length > 500) {
+        opportunities = opportunities.slice(0, 500);
+      }
+
+      saveWebhookData(opportunities);
+
+      return res.json({
+        success: true,
+        message: 'Oportunidade de Radar capturada com sucesso.',
+      });
+    }
+
+    // Otherwise, treat it as Brand Monitor Metrics
+    const { platform, gigId, metrics } = payload;
+
+    if (!platform || !metrics) {
+      return res.status(400).json({ success: false, error: 'Payload inválido. Requer metrics ou title/url.' });
+    }
+
+    console.log(`📡 [N8N BRAND] Métricas recebidas de ${platform} (Gig: ${gigId}):`, metrics);
+
+    const isUnderperforming = (metrics.impressions > 100 && metrics.clicks < 5) || (metrics.messages === 0 && metrics.clicks > 10);
+
+    if (isUnderperforming) {
+      const aiCritique = `CRÍTICA [UX/Analyst]: O Gig '${gigId}' no ${platform.toUpperCase()} está com baixa conversão (100+ impressões e < 5 cliques). 
+      SUGESTÃO DE OURO: A thumbnail não está chamando atenção e a copy não transmite autoridade para Ticket Alto. 
+      AÇÃO: Atualize a capa imediatamente aplicando o design system neon/cyberpunk da AGE e reescreva o título focando no RESULTADO de faturamento.`;
+
+      const humanTasksParams = {
+        title: `AÇÃO REQUERIDA: Atualizar Imagem da Marca (${platform})`,
+        description: aiCritique,
+        priority: 'critical',
+        type: 'deploy'
+      };
+
+      const tasks = loadHumanTasks();
+      const newTask = {
+        id: 'ht_' + Date.now(),
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        ...humanTasksParams
+      };
+
+      tasks.push(newTask);
+      saveHumanTasks(tasks);
+
+      console.log(`🚨 [N8N] Alarme de Marca disparado! Human Task criada.`);
+
+      return res.json({
+        success: true,
+        message: 'Métricas analisadas. Anomalia de performance detectada. Human Task criada com sucesso.',
+        aiCritique,
+        task: newTask
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Métricas analisadas. Performance estável. Nenhuma intervenção necessária.'
+    });
+
+
+  } catch (error) {
+    console.error('Erro no webhook brand-monitor:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/n8n/trigger
+ * Aciona o Workflow de Radar no N8N via REST API (Evita nós de Webhook)
+ */
+app.post('/api/n8n/trigger', async (req, res) => {
+  try {
+    // Como a API nativa bloqueia a execução programática de workflows sem Webhooks,
+    // o frontend agora aciona este proxy que dispara o gatilho Webhook padrão do N8N.
+    const N8N_WEBHOOK_URL = 'http://127.0.0.1:5678/webhook/entidados-age-trigger';
+
+    console.log(`🚀 Acionando Webhook do Radar no N8N...`);
+
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ source: 'entidados-dashboard', timestamp: new Date().toISOString() })
+    });
+
+    if (response.ok) {
+      console.log(`✅ Webhook N8N acionado com sucesso.`);
+      return res.json({ success: true, message: 'N8N Workflow acionado c/ sucesso!' });
+    } else {
+      const errTxt = await response.text();
+      console.error('❌ Erro N8N Webhook:', errTxt);
+      return res.status(response.status).json({ success: false, error: `Erro da API N8N: Status ${response.status}` });
+    }
+  } catch (error) {
+    console.error('Erro ao acionar N8N Webhook:', error);
+    res.status(500).json({ success: false, error: 'Falha de comunicação com o Webhook do N8N.' });
+  }
+});
+
+// ============================================================
 // ROTAS — UTILITÁRIOS
 // ============================================================
 
@@ -1262,7 +1554,7 @@ app.get('/', (req, res) => {
 // INICIAR SERVIDOR
 // ============================================================
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║ 🚀 ENTIDADOS AGE — Backend Running                    ║

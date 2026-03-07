@@ -10,7 +10,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
@@ -220,6 +222,19 @@
             </div>
         </section>
 
+        <!-- Section: Squad Control Center -->
+        <section class="section-squads" id="sectionSquads">
+            <div class="squads-header">
+                <h2 class="section-title">⚡ SQUAD CONTROL CENTER</h2>
+                <div class="squads-controls">
+                    <span class="squads-status" id="squadsStatusText">AI Agent Framework</span>
+                </div>
+            </div>
+            <div class="squads-grid" id="squadsGrid">
+                <!-- Squad cards dynamically inserted via JS -->
+            </div>
+        </section>
+
         <!-- Section: Human Bottlenecks -->
         <section class="section-human-tasks" id="sectionHumanTasks">
             <div class="human-tasks-header">
@@ -230,7 +245,7 @@
                     <span class="human-tasks-count" id="humanTasksCount">0 Ações Requeridas</span>
                 </div>
             </div>
-            
+
             <div class="human-tasks-list" id="humanTasksList">
                 <!-- As pendências serão renderizadas aqui via JS -->
             </div>
@@ -242,7 +257,9 @@
                 <h2 class="section-title">📡 Radar de Oportunidades</h2>
                 <div class="radar-controls">
                     <span class="radar-count" id="radarCount">0 oportunidades</span>
-                    <button class="btn-add-mission" id="btnAddOpportunity">+ Adicionar</button>
+                    <button class="btn-sync-radar" id="btnSyncRadar" onclick="syncRadar()">🔄 SYNC LOCAL</button>
+                    <button class="btn-trigger-n8n" id="btnTriggerN8N" onclick="triggerN8NWorkflow()">⚡ ACIONAR VIA
+                        n8n</button>
                 </div>
             </div>
 

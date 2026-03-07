@@ -9,7 +9,7 @@ description: Sincronização Matinal de Receita & Caça
 
 ## Steps
 
-1. **[Data Engineer]** Raspar Workana e 99Freelas:
+1. **[Data Engineer]** Raspar Upwork, Fiverr (e futuramente Workana):
    * Procurar por termos: "Automação WhatsApp", "Dashboard", "IA", "Python", "SaaS", "N8N".
    * Salvar JSON raw em `squads/nexus/data/radar_opportunities.json`.
 2. **[Analyst]** Filtrar o Lixo:

@@ -1,0 +1,58 @@
+{
+    "name": "Brand Monitoring & AI Critique",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 8 * * *"
+                        }
+                    ]
+                }
+            },
+            "name": "Cron (Daily at 8 AM)",
+            "type": "n8n-nodes-base.cron",
+            "position": [
+                250,
+                300
+            ],
+            "typeVersion": 1,
+            "id": "1"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://localhost:3000/api/webhook/brand-monitor",
+                "sendBody": true,
+                "contentType": "raw",
+                "rawContentType": "application/json",
+                "body": "={\n  \"platform\": \"fiverr\",\n  \"gigId\": \"frontend-dev-pro\",\n  \"metrics\": {\n    \"impressions\": 120,\n    \"clicks\": 2,\n    \"messages\": 0,\n    \"orders\": 0\n  }\n}"
+            },
+            "name": "Send Metrics to Entidados",
+            "type": "n8n-nodes-base.httpRequest",
+            "position": [
+                500,
+                300
+            ],
+            "typeVersion": 1,
+            "id": "2"
+        }
+    ],
+    "connections": {
+        "Cron (Daily at 8 AM)": {
+            "main": [
+                [
+                    {
+                        "node": "Send Metrics to Entidados",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {}
+}
