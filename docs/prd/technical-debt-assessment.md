@@ -1,6 +1,6 @@
 # Technical Debt Assessment — FINAL
 
-**Projeto:** Entidados AGE
+**Projeto:** age
 **Data:** 2026-02-26
 **Status:** Brownfield Discovery - FASE 8 (FINAL)
 **Consolidado por:** @architect (Aria)

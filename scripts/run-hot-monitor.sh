@@ -13,7 +13,7 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-echo "🔥 Entidados AGE — HOT Proposals Monitor"
+echo "🔥 age — HOT Proposals Monitor"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 

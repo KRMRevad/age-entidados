@@ -203,7 +203,7 @@ Exibe resultado final
 ## 🏗️ Estrutura Final
 
 ```
-/Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE/
+/Users/kreligar3vad/Documents/Workspace/apps/age/
 │
 ├── src/workers/
 │   ├── cert_farmer.js                    [NOVO] Bot principal
@@ -232,7 +232,7 @@ Exibe resultado final
 ### Opção 1: Usar Orquestrador (RECOMENDADO)
 
 ```bash
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 ./start_cert_farmer.sh
 # Segue as instruções na tela
 ```

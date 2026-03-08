@@ -1522,7 +1522,7 @@ app.post('/api/n8n/trigger', async (req, res) => {
  */
 app.get('/', (req, res) => {
   res.json({
-    app: 'Entidados AGE',
+    app: 'age',
     version: '2.0.0',
     mode: 'SURVIVAL',
     message: '🚀 Backend rodando em modo Brain-Muscle orchestration com 7 features avançadas',

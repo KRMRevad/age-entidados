@@ -19,7 +19,7 @@ Este diretório contém scripts autônomos para diferentes tarefas:
 ### Quick Start (1 minuto)
 
 ```bash
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 ./start_cert_farmer.sh
 ```
 

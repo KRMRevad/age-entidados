@@ -1,4 +1,4 @@
-# Database Audit — Entidados AGE
+# Database Audit — age
 
 **Data:** 2026-02-26
 **Status:** Brownfield Discovery - FASE 2

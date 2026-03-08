@@ -1,4 +1,4 @@
-# Frontend Specification — Entidados AGE
+# Frontend Specification — age
 
 **Data:** 2026-02-26
 **Status:** Brownfield Discovery - FASE 3

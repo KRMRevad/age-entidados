@@ -1,4 +1,4 @@
-# Database Specialist Review — Entidados AGE
+# Database Specialist Review — age
 
 **Revisor:** @data-engineer (Dara)
 **Data:** 2026-02-26

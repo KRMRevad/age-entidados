@@ -1,7 +1,30 @@
 {
-  "seen_projects": [
-    "wkn_919751634",
-    "wkn_581968296"
-  ],
-  "last_check": "2026-02-28T13:26:57.900344"
+  "sprint": "MVP-SPRINT-2026-03-07",
+  "status": "ACTIVE",
+  "activated_at": "2026-03-08T00:00:00Z",
+  "squads": {
+    "hunter": {
+      "status": "STARTING",
+      "deadline": "2026-03-08T24:00:00Z",
+      "task": "Gerar 150 leads (50 por nicho) via Google Maps scraping"
+    },
+    "crafter": {
+      "status": "WAITING",
+      "deadline": "2026-03-09T24:00:00Z",
+      "task": "Portfolio PDF com 5 automações"
+    },
+    "closer": {
+      "status": "WAITING",
+      "deadline": "2026-03-09T24:00:00Z",
+      "task": "Cadência de 5 cold emails (inicia após leads HOT)"
+    }
+  },
+  "kpis": {
+    "leads_target": 150,
+    "leads_hot_target": 50,
+    "proposals_target": 10,
+    "conversion_target": 0.20,
+    "revenue_target": 5000
+  },
+  "last_updated": "2026-03-08T00:00:00Z"
 }

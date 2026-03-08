@@ -31,4 +31,4 @@ Olá, vi sua necessidade de aprimorar a experiência do usuário na sua loja Sho
 4. Envie!
 
 **Gerado em:** 2026-02-28 13:26:57
-**Sistema:** Entidados AGE — Revenue Hunter Pipeline (Survival Mode)
+**Sistema:** age — Revenue Hunter Pipeline (Survival Mode)

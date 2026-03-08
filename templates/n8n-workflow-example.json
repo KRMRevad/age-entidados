@@ -1,0 +1,97 @@
+{
+  "name": "age — Revenue Automation (Simplified)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "webhook-start",
+      "name": "Webhook In",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300],
+      "webhookId": "webhook-opportunity-inbound"
+    },
+    {
+      "parameters": {
+        "url": "=https://seu-api.com/api/webhook/n8n",
+        "requestMethod": "POST",
+        "contentType": "application/json",
+        "specifyBody": "json",
+        "body": "={{$json}}"
+      },
+      "id": "http-log",
+      "name": "Log to Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "code": "// Parse incoming opportunity data\nconst opp = $input.first().json;\n\n// Calculate score based on reward & skills match\nconst scoreFactors = {\n  reward: (opp.rewardMax || 0) > 1000 ? 30 : 10,\n  deadlineUrgent: opp.deadline && new Date(opp.deadline) < new Date(Date.now() + 7*24*60*60*1000) ? 20 : 0,\n  skillsMatch: opp.skills && Array.isArray(opp.skills) ? Math.min(30, opp.skills.length * 5) : 0\n};\n\nconst score = Object.values(scoreFactors).reduce((a,b) => a+b, 0);\nconst tier = score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cool';\n\nreturn {\n  ...opp,\n  score,\n  tier,\n  processedAt: new Date().toISOString()\n};"
+      },
+      "id": "calc-score",
+      "name": "Calculate Score & Tier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.score}}",
+              "value2": 70,
+              "operation": "gte"
+            }
+          ]
+        }
+      },
+      "id": "if-hot-opps",
+      "name": "Is Score >= 70?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [550, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4-turbo",
+        "prompt": "=Você é um especialista em propostas freelance. Gere uma proposta profissional (200-250 palavras) para:\n\nTítulo: {{$json.title}}\nPlataforma: {{$json.platform}}\nSkills solicitadas: {{$json.skills.join(', ')}}\nBudget: ${{$json.rewardMin}}-{{$json.rewardMax}}\nDeadline: {{$json.deadline}}\n\nRequisitos:\n1. Abrir com análise rápida dos requisitos\n2. Mostrar expertise relevante\n3. Mencionar diferencial\n4. Estimativa de tempo\n5. Próximo passo\n\nTom: Profissional mas acessível.",
+        "options": {}
+      },
+      "id": "openai-proposal",
+      "name": "Generate Proposal with AI",
+      "type": "n8n-nodes-base.openai",
+      "typeVersion": 1,
+      "position": [700, 200],
+      "credentials": {
+        "openAiApi": "OpenAI-API-Key"
+      }
+    },
+    {
+      "parameters": {
+        "code": "// Save proposal to markdown file\nconst proposalContent = `# 🔥 PROPOSTA — {{$json.title}}\n\n**Plataforma:** {{$json.platform}}\n**Score:** {{$json.score}}/100\n**Valor:** ${{$json.rewardMin}}-{{$json.rewardMax}}\n**Link:** [Acessar vaga]({{$json.url}})\n\n---\n\n## 💬 PROPOSTA PRONTA PARA ENVIO\n\n\\`\\`\\`\n${$input.first().json.response || 'Proposta gerada pela IA'}\n\\`\\`\\`\n\n---\n\nGerado em: {{$json.processedAt}}`;\n\nreturn {\n  proposalContent,\n  filename: `PROPOSAL-${$json.id}-${$json.tier.toUpperCase()}.md`,\n  id: $json.id,\n  platform: $json.platform\n};"
+      },
+      "id": "format-proposal",
+      "name": "Format Proposal Markdown",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "url": "=https://seu-api.com/api/proposals",
+        "requestMethod": "POST",
+        "contentType": "application/json",
+        "specifyBody": "json",
+        "body": "={\n  \"id\": \"{{$json.id}}\",\n  \"content\": {{$json.proposalContent}},\n  \"filename\": \"{{$json.filename}}\",\n  \"platform\": \"{{$json.platform}}\",\n  \"tier\": \"hot\"\n}"
+      },
+      "id": "save-proposal",
+      "name": "POST Proposal to Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {\n        \"channel\": \"#revenue\",\n        \"text\": \"=🔥 HOT Deal Detected!\\n🎯 {{$json.title}}\\n💰 ${{$json.rewardMin}}-{{$json.rewardMax}}\\n⏱️  Score: {{$json.score}}/100\\n🔗 [Ver vaga]({{$json.url}})\"\n      },\n      "id": "notify-slack",\n      "name": "Notify Slack (Optional)",\n      "type": "n8n-nodes-base.slack",\n      "typeVersion": 2,\n      "position": [1000, 350],\n      "credentials": {\n        "slackApi": "Slack-Bot-Token"\n      }\n    }\n  ],\n  "connections": {\n    "webhook-start": {\n      "main": [[{ "node": "calc-score", "branch": 0, "type": "main" }]]\n    },\n    "calc-score": {\n      "main": [[{ "node": "http-log", "branch": 0, "type": "main" }]]\n    },\n    "http-log": {\n      "main": [[{ "node": "if-hot-opps", "branch": 0, "type": "main" }]]\n    },\n    "if-hot-opps": {\n      "main": [\n        [{ "node": "openai-proposal", "branch": 0, "type": "main\" }],\n        []\n      ]\n    },\n    "openai-proposal": {\n      "main": [[{ "node": "format-proposal", "branch": 0, "type": "main" }]]\n    },\n    "format-proposal": {\n      "main": [[{ "node": "save-proposal", "branch": 0, "type": "main" }, { "node": "notify-slack", "branch": 0, "type": "main" }]]\n    }\n  },\n  "active": true,\n  "settings": {\n    "saveExecutionProgress": true,\n    "saveManualExecutions": false,\n    "executionTimeout": 300,\n    "maxRetries": 2\n  },\n  "staticData": null,
+  "pinData": null
+}

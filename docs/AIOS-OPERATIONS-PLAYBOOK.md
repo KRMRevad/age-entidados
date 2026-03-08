@@ -2,7 +2,7 @@
 
 > **Complementar a:** `docs/COUNSELOR-KNOWLEDGE-TRANSFER.md`
 > **Padrão:** Synkra AIOS v2.1 (Task-First Architecture)
-> **Autor:** Conselheiro-Chefe, Entidados AGE
+> **Autor:** Conselheiro-Chefe, age
 > **Versão:** 1.0 — 2026-02-28
 
 ---

@@ -1,4 +1,4 @@
-# 📊 Relatório de Débito Técnico — Entidados AGE
+# 📊 Relatório de Débito Técnico — age
 
 **Projeto:** Entidados - Metabolismo Financeiro
 **Data:** 2026-02-26

@@ -98,7 +98,7 @@ def generate_proposal_markdown(project):
 4. Envie!
 
 **Gerado em:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-**Sistema:** Entidados AGE — Revenue Hunter Pipeline (Survival Mode)
+**Sistema:** age — Revenue Hunter Pipeline (Survival Mode)
 """
     return markdown
 

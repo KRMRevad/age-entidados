@@ -42,7 +42,7 @@ chmod +x scripts/run-hot-monitor.sh
 
 **Output esperado:**
 ```
-🔥 Entidados AGE — HOT Proposals Monitor
+🔥 age — HOT Proposals Monitor
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 ONE-TIME SCAN — Looking for HOT projects (score > 80)...
 
@@ -84,7 +84,7 @@ Isso vai:
 
 ### Cenário 1: Scan Manual (when you want)
 ```bash
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 ./scripts/run-hot-monitor.sh
 ```
 
@@ -107,7 +107,7 @@ cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados AGE
 ### Cenário 3: Cron Job (automático)
 ```bash
 # Adicionar ao crontab para executar a cada 15 min
-*/15 * * * * cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados AGE && ./scripts/run-hot-monitor.sh >> /tmp/hot-proposals.log 2>&1
+*/15 * * * * cd /Users/kreligar3vad/Documents/Workspace/apps/age && ./scripts/run-hot-monitor.sh >> /tmp/hot-proposals.log 2>&1
 ```
 
 ---
@@ -265,6 +265,6 @@ python3 -c "import json; f=open('squads/nexus/data/radar_opportunities.json'); o
 
 Este é seu **Inside Sales Orgânico** automatizado. Use bem! 💰
 
-**Sistema:** Entidados AGE — Revenue Hunter Pipeline (Survival Mode)
+**Sistema:** age — Revenue Hunter Pipeline (Survival Mode)
 **Atualizado:** 2026-02-28
 **Versão:** 1.0-beta

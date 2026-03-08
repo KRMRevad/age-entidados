@@ -84,7 +84,7 @@ def call_openrouter_free_llm(prompt: str) -> dict:
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}",
         "HTTP-Referer": "https://synkra.ai",
-        "X-Title": "Entidados AGE"
+        "X-Title": "age"
     }
 
     data = {

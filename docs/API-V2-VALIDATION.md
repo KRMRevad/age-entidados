@@ -11,7 +11,7 @@ Run this to validate all 7 features are working:
 
 ```bash
 # Terminal 1: Start server
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 node src/backend/server.js
 
 # Terminal 2: Run validation script

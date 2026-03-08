@@ -48,7 +48,7 @@ export LLM_PORT="1234"
 
 ### B. Rodar Pipeline Completo
 ```bash
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 
 # Opção 1: Script Wrapper (recomendado)
 bash src/workers/run_revenue_pipeline.sh

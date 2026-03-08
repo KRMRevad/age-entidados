@@ -1,4 +1,4 @@
-# Supabase Setup Guide — Entidados AGE
+# Supabase Setup Guide — age
 
 **Story:** Story 1.0.1 - Database Setup & Core Schema
 **Status:** Initial Setup Required
@@ -24,7 +24,7 @@
 
 ### 1.2 Create New Project
 1. Click **"New Project"** button
-2. Enter **Project Name:** `Entidados AGE`
+2. Enter **Project Name:** `age`
 3. Set **Database Password:** Create a strong password (save it!)
 4. Select **Region:** `us-east-1` (default is OK)
 5. Click **"Create New Project"**

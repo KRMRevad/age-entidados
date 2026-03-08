@@ -27,7 +27,7 @@
 ### 1️⃣ Iniciar o Backend
 
 ```bash
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 node src/backend/server.js
 ```
 

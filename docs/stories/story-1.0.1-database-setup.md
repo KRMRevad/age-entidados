@@ -32,7 +32,7 @@ Initialize Supabase project and deploy core schema with 4 foundational tables to
 
 ### Task 1: Create Supabase Project
 - [ ] Go to supabase.com and create account (if needed)
-- [ ] Create new project "Entidados AGE"
+- [ ] Create new project "age"
 - [ ] Set region to us-east-1
 - [ ] Configure email for auth
 - [ ] Retrieve project URL and API keys

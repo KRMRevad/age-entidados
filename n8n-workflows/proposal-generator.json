@@ -1,0 +1,47 @@
+{
+    "name": "Proposal Generator",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "age/generate-proposal",
+                "options": {}
+            },
+            "id": "webhook-trigger",
+            "name": "Webhook (Lead Scored)",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "command": "echo 'Generating tailored PDF proposal via markdown template...'"
+            },
+            "id": "generate-pdf",
+            "name": "Generate PDF (Mock)",
+            "type": "n8n-nodes-base.executeCommand",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook (Lead Scored)": {
+            "main": [
+                [
+                    {
+                        "node": "Generate PDF (Mock)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {}
+}

@@ -34,7 +34,7 @@ echo ""
 if [[ ! -f "src/workers/cert_farmer.js" ]]; then
   echo -e "${RED}✗ Erro: cert_farmer.js não encontrado${NC}"
   echo -e "${YELLOW}Execute este script da raiz do projeto:${NC}"
-  echo "  cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE"
+  echo "  cd /Users/kreligar3vad/Documents/Workspace/apps/age"
   echo "  ./start_cert_farmer.sh"
   exit 1
 fi

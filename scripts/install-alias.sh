@@ -26,9 +26,9 @@ echo "✅ Backed up $PROFILE → ${PROFILE}.backup"
 if ! grep -q "hot-monitor" "$PROFILE"; then
     cat >> "$PROFILE" << 'EOF'
 
-# 🔥 Entidados AGE — HOT Proposals Monitor Aliases
-alias hot-monitor='cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE && ./scripts/run-hot-monitor.sh'
-alias hot-watch='cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE && ./scripts/run-hot-monitor.sh --watch 30'
+# 🔥 age — HOT Proposals Monitor Aliases
+alias hot-monitor='cd /Users/kreligar3vad/Documents/Workspace/apps/age && ./scripts/run-hot-monitor.sh'
+alias hot-watch='cd /Users/kreligar3vad/Documents/Workspace/apps/age && ./scripts/run-hot-monitor.sh --watch 30'
 EOF
     echo "✅ Aliases added to $PROFILE"
 else

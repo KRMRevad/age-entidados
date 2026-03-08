@@ -9,7 +9,7 @@
 
 echo "🌌 Inicializando o Mosaico Infinito..."
 
-WORKSPACE_DIR="/Users/kreligar3vad/Documents/Workspace/apps/Entidados AGE"
+WORKSPACE_DIR="/Users/kreligar3vad/Documents/Workspace/apps/age"
 
 # SQUAD 1: Engenharia e Estratégia
 echo "Iniciando SQUAD 1 (ENG/CORE)..."

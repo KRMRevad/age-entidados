@@ -58,4 +58,4 @@ Olá, vi sua necessidade de integrar o Drive Parts ao DETRAN RS. Tenho mais de 5
 4. Envie!
 
 **Gerado em:** 2026-02-28 13:26:57
-**Sistema:** Entidados AGE — Revenue Hunter Pipeline (Survival Mode)
+**Sistema:** age — Revenue Hunter Pipeline (Survival Mode)

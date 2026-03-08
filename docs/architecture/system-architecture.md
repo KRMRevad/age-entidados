@@ -1,4 +1,4 @@
-# System Architecture — Entidados AGE
+# System Architecture — age
 
 **Data:** 2026-02-26
 **Status:** Brownfield Discovery - FASE 1

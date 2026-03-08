@@ -1,4 +1,4 @@
-# UX/Frontend Specialist Review — Entidados AGE
+# UX/Frontend Specialist Review — age
 
 **Revisor:** @ux-design-expert (Uma)
 **Data:** 2026-02-26
@@ -94,7 +94,7 @@
 ### Tokens Design (FASE 1 - P1)
 
 ```yaml
-# Design Tokens - Entidados AGE
+# Design Tokens - age
 
 # Colors
 colors:

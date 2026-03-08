@@ -80,7 +80,7 @@ O **Auto-Cert Farmer** é um bot autônomo que:
 
 ```bash
 # Terminal 1 (Lançador Chrome)
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 
 ./src/workers/launch_chrome.sh
 # Abre Chrome automaticamente na Workana
@@ -111,7 +111,7 @@ cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
 
 ```bash
 # Terminal 2 (Bot - EM OUTRO TERMINAL)
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 
 node src/workers/cert_farmer.js
 ```
@@ -344,7 +344,7 @@ O bot exibe em tempo real:
 
 ```bash
 # Terminal 1: Lançar Chrome
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 ./src/workers/launch_chrome.sh
 
 # [Chrome abre em alguns segundos]
@@ -352,7 +352,7 @@ cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
 # Deixe o Chrome aberto
 
 # Terminal 2: Rodar bot
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 node src/workers/cert_farmer.js
 
 # [Bot conecta automaticamente e começa a resolver]

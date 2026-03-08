@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document describes the 7 new advanced features added to the Entidados AGE backend:
+This document describes the 7 new advanced features added to the age backend:
 
 1. **GET /api/proposals** — List all generated proposals
 2. **POST /api/opportunities/:id/kanban** — Move opportunities through CRM pipeline
@@ -550,7 +550,7 @@ curl -X GET http://localhost:3000/api/followups/due \
 
 ### 1. Start the Server
 ```bash
-cd /Users/kreligar3vad/Documents/Workspace/apps/Entidados\ AGE
+cd /Users/kreligar3vad/Documents/Workspace/apps/age
 npm install  # if needed
 node src/backend/server.js
 ```

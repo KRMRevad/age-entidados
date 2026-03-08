@@ -1,7 +1,7 @@
 # Aprovação de Orçamento — Resolução de Débitos Técnicos
 
 **Data:** 2026-02-26
-**Projeto:** Entidados AGE
+**Projeto:** age
 **Documento:** Technical Debt Assessment Final
 
 ---
